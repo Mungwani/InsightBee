@@ -36,7 +36,7 @@ FastAPI 기반 백엔드 서비스입니다. **파이썬이 처음인 팀원도*
 git clone <REPO_URL> insightBee
 ```
 ```
-cd insightBee/apps/backend-api
+cd insightBee/apps/backend
 ```
 ## 2) 가상환경 생성 & 의존성 설치
 ```
