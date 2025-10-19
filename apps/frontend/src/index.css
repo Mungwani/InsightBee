@@ -55,6 +55,16 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+/* 색상추가 */
+@theme {
+  --color-customYellow: #ffd72f;
+  --color-customBrown: #4f200d;
+}
+/* 추가 기능 */
+@utility no-scrollbar {
+  @apply [scrollbar-width:none] [&::-webkit-scrollbar]:hidden;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
