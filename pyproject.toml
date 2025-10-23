@@ -1,0 +1,28 @@
+[project]
+name = "insightbee"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "YOOJIIN",email = "yoojiin0328@naver.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+  "fastapi>=0.117,<0.118",
+  "uvicorn>=0.37,<0.38",
+  "python-dotenv>=1.1,<2.0",
+  "requests>=2.32",
+  "psycopg[binary]>=3.2",
+  "sqlalchemy>=2.0",
+  "alembic>=1.13"
+]
+
+[tool.poetry]
+packages = [
+  { include = "apps/backend",  from = "." },
+  { include = "apps/dataflow", from = "." }
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
