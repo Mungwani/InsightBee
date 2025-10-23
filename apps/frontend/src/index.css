@@ -59,6 +59,7 @@ button:focus-visible {
   :root {
     color: #213547;
     background-color: #ffffff;
+    --safe-top: env(safe-area-inset-top, 20px);
   }
   a:hover {
     color: #747bff;
