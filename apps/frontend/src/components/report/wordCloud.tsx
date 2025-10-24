@@ -1,10 +1,5 @@
 import WordCloudLib from "react-wordcloud";
-
-export interface WordData {
-  text: string;
-  value: number;
-  sentiment: "positive" | "negative";
-}
+import type { WordData } from "../../../public/data/newsData";
 
 interface WordCloudProps {
   data: WordData[];

@@ -1,3 +1,9 @@
+import NewsModal from "./NewsModal";
+
 export default function Tip() {
-  return <div className="text-customBrown">Tip</div>;
+  return (
+    <div className="text-customBrown">
+      <NewsModal />
+    </div>
+  );
 }

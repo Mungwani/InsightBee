@@ -1,20 +1,33 @@
-import HashTag from "./HashTag";
-
 export default function NewsCard() {
   return (
-    <div className="flex flex-col gap-4 text-black border-1 border-gray-200 rounded-2xl p-[10px]">
+    <div className="flex flex-col gap-4 text-black border border-gray-200 rounded-2xl p-[10px]">
       <div className="flex justify-between">
-        <div className="w-[80%]">3분기 실적 발표</div>
+        <div className="w-[80%]"> 제목</div>
         <div>긍정</div>
       </div>
 
-      <div className="text-sm text-gray-400">
-        매출 39억원으로 어쩌구 저쩌구 주식 올라라
+      <div className="text-sm text-gray-400">요약</div>
+      <div className="flex justify-between items-center">
+        {/* 왼쪽 */}
+        <div className="flex gap-2 text-xs">
+          <div className="flex gap-1">
+            <div>사</div>
+            <div>연합뉴스</div>
+          </div>
+          <div className="flex gap-1">
+            <div>진</div>
+            <div>1202-12-31 </div>
+          </div>
+          <div className="bg-amber-200">실적</div>
+        </div>
+        {/* 오른쪽 버튼 */}
+        <div className="flex text-[11px] gap-1">
+          <button className="w-[30px] h-[30px] !bg-white">*</button>
+          <button className="w-[70px] h-[30px] !bg-white border-solid !border-gray-200">
+            읽기 뿅
+          </button>
+        </div>
       </div>
-      <button className="!bg-white text-gray-400 !text-xs w-[80px] !p-0">
-        📄 45개 기사
-      </button>
-      <HashTag />
     </div>
   );
 }
