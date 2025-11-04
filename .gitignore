@@ -12,3 +12,8 @@ __pycache__/
 
 # 민감한 정보 파일
 .env
+__pycache__/
+*.pycIcon
+apps/dataflow/config.py
+Icon
+__pycache__/

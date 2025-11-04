@@ -48,9 +48,7 @@ class Companies(Base):
 # --- [테이블 2: 수집된 뉴스 기사] ---
 class NewsArticle(Base):
     """
-    [뉴스 기사 테이블 (news_articles)]
     DB의 'news_articles' 테이블 스키마를 정의합니다.
-    [!!핵심 수정!!] ForeignKey가 'companies.id'를 올바르게 참조하도록 수정했습니다.
     """
     __tablename__ = 'news_articles'
 
@@ -61,7 +59,7 @@ class NewsArticle(Base):
 
     # --- 1. 기본 기사 정보 및 관계 설정 ---
     
-    # [!!핵심 수정!!] company_id (FK, 정수, 필수, 인덱스)
+    #  company_id (FK, 정수, 필수, 인덱스)
     # 'companies' 테이블의 'id' 컬럼을 참조하는 외래 키(ForeignKey)
     company_id = Column(Integer, ForeignKey('companies.id'), nullable=False, index=True)
 
@@ -101,8 +99,6 @@ class NewsArticle(Base):
     matched_keywords = Column(Text, nullable=True)
     # is_passed_rule (불리언, 필수, 인덱스) - filter.py가 판단한 최종 통과 여부 (True/False)
     is_passed_rule = Column(Boolean, nullable=False, index=True)
-    # is_relevant_human (불리언, 선택, 기본값 None, 인덱스) - (운영용) 사람이 직접 관련 여부를 판단한 값
-    is_relevant_human = Column(Boolean, nullable=True, default=None, index=True)
 
     def __repr__(self):
         """

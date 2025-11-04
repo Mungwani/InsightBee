@@ -1,3 +1,4 @@
+# apps/dataflow/news_pipeline/scraper.py
 import asyncio
 import aiohttp
 import logging
@@ -62,8 +63,7 @@ def create_db_object(
         score=filter_result['score'],
         matched_keywords=filter_result['matched_keywords'],
         
-        is_passed_rule=filter_result['passed'], 
-        is_relevant_human=None                  
+        is_passed_rule=filter_result['passed']          
     )
 
 # --- 1. Naver API 링크 수집 ---
@@ -74,7 +74,7 @@ async def fetch_naver_links_for_company(session: aiohttp.ClientSession, company:
     # start_index 1부터 (최대 1000까지) 100개(ARTICLES_PER_PAGE)씩 증가하며 API 호출
     for start_index in range(1, config.TARGET_ARTICLES_PER_COMPANY + 1, config.ARTICLES_PER_PAGE):
         if start_index > 1000: break # Naver API는 1000 이상 조회를 막음
-        await asyncio.sleep(0.2) # Naver API 속도 제한 (0.1 -> 0.2)(초당 10회)
+        await asyncio.sleep(0.5) # Naver API 속도 제한 (0.1 -> 0.2)(초당 10회)
 
         api_url = f"https://openapi.naver.com/v1/search/news.json?query={company}&display={config.ARTICLES_PER_PAGE}&start={start_index}&sort=date"
         
@@ -163,20 +163,18 @@ def _parse_content_common(url: str, html: str, press: str) -> Dict[str, Any]:
 
 def _create_selenium_driver() -> webdriver.Chrome:
     options = Options()
-    options.add_argument("--headless") # 헤드리스 모드 다시 켭니다.
+    options.add_argument("--headless")
     options.add_argument("--no-sandbox"); options.add_argument("--disable-dev-shm-usage"); options.add_argument("--disable-gpu")
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36")
+
     try:
-        logging.info("Attempting to install/use ChromeDriver automatically...")
-        # 자동으로 크롬 드라이버 다운로드 및 경로 설정
-        driver_path = ChromeDriverManager().install() 
-        service = Service(driver_path)
+        logging.info("Attempting to initialize ChromeDriver via Selenium Manager...")
+        driver = webdriver.Chrome(options=options)
+        logging.info("ChromeDriver initialized successfully.")
+        return driver
     except Exception as e:
-        # 자동 설치 실패 시, 시스템 PATH에 의존.
-        logging.warning(f"webdriver-manager automatic installation failed: {e}. Falling back to default PATH.")
-        try: service = Service()
-        except Exception as fallback_e: logging.critical(f"Failed to initialize Selenium Service: {fallback_e}"); raise 
-    return webdriver.Chrome(service=service, options=options)
+        logging.critical(f"Failed to initialize Selenium Driver: {e}")
+        raise
 
 def scrape_article_robust_sync(link_info: Dict) -> Optional[Dict]:
     """
@@ -238,7 +236,7 @@ async def scrape_and_process_fast(
             
         except Exception as e:
             # aiohttp 실패 (타임아웃, 본문/제목 파싱 실패 등)
-            logging.debug(f"Fast Scrape Failed: {url} (Reason: {e}). Retrying with Selenium.")
+            logging.error(f"Fast Scrape FAILED for {url} (Reason: {e}). Retrying with Selenium.")
             return link_info # Selenium 재시도
 
         # [스크래핑 성공 시]
