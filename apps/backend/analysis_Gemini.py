@@ -1,160 +1,206 @@
 import os
+import re
 import warnings
-from typing import List, Dict
+from typing import List, Tuple, Optional
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import google.generativeai as genai
 import pandas as pd
+import numpy as np
 from dotenv import load_dotenv
-from sentence_transformers import SentenceTransformer, util
+from sqlalchemy import create_engine, text
+from sqlalchemy.engine import Engine
+from sqlalchemy.exc import SQLAlchemyError
 from tqdm import tqdm
-from tqdm.auto import tqdm as auto_tqdm # pandas.apply 진행률 표시를 위함
+from sentence_transformers import SentenceTransformer, util
 
-# --- 1. 설정 (Configuration) ---
-INPUT_FILENAME = "news_test.csv"
-OUTPUT_FILENAME = "news_classified_results_summary_individual.csv"
-EMBEDDING_MODEL_NAME = 'distiluse-base-multilingual-cased-v1'
-GEMINI_MODEL_NAME = 'gemini-2.5-flash' # 또는 'gemini-1.0-pro' 등 사용 가능한 모델
+
+# --- 설정 ---
+ORIGINAL_ARTICLE_TABLE = "news_articles"
+RESULT_TABLE_NAME = "article_topics"
+
+GEMINI_MODEL_NAME = "gemini-2.5-flash"
 TOPIC_CATEGORIES = [
     "신사업/M&A", "경영전략/리더십", "해외진출/글로벌 동향", "투자유치/재무", "신제품/서비스 출시",
     "기술개발/R&D", "생산/공급망 관리", "특허/기술인증", "시장동향/트렌드 분석", "경쟁사 동향",
     "정부규제/정책", "인재채용/인재상", "조직문화/인사제도", "임직원 동정/인사", "노사관계/고용이슈",
     "ESG/지속가능경영", "사회공헌/CSR", "소비자보호/분쟁", "파트너십/협력", "대외활동/홍보", "리스크/위기관리"
 ]
+MAX_WORKERS = 5
+
+
+# --- DB & AI 설정 ---
+def setup_db_engine() -> Engine:
+    load_dotenv()
+    db_url = os.getenv("DATABASE_URL")
+    if not db_url:
+        raise ValueError("DATABASE_URL이 .env에 없습니다.")
+    return create_engine(db_url)
+
 
 def setup_gemini() -> genai.GenerativeModel:
-    """API 키를 설정하고 Gemini 모델을 초기화합니다."""
-    load_dotenv()
     warnings.filterwarnings("ignore")
-    auto_tqdm.pandas(desc="개별 기사 요약 중") # tqdm.pandas() 활성화
+    api_key = os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        raise ValueError("GOOGLE_API_KEY가 .env에 없습니다.")
+    genai.configure(api_key=api_key)
+    return genai.GenerativeModel(GEMINI_MODEL_NAME)
+
+
+# --- DB 함수 ---
+def fetch_all_unprocessed_articles(engine: Engine) -> Optional[pd.DataFrame]:
+    print(f"\n1단계: '{RESULT_TABLE_NAME}'에 없는 기사 조회 중...")
+
+    query = text(f"""
+        SELECT a.*
+        FROM {ORIGINAL_ARTICLE_TABLE} a
+        LEFT JOIN {RESULT_TABLE_NAME} ar ON a.article_id = ar.id
+        WHERE ar.id IS NULL
+        ORDER BY a.article_id ASC;
+    """)
+
     try:
-        api_key = os.environ.get("GOOGLE_API_KEY")
-        if not api_key:
-            raise ValueError("'.env' 파일에서 GOOGLE_API_KEY를 찾을 수 없습니다.")
-        genai.configure(api_key=api_key)
-        print("✅ Gemini API 키가 성공적으로 설정되었습니다.")
-        return genai.GenerativeModel(GEMINI_MODEL_NAME)
+        with engine.connect() as conn:
+            df = pd.read_sql_query(query, conn)
+        df.dropna(subset=["content"], inplace=True)
+        df.reset_index(drop=True, inplace=True)
+
+        if df.empty:
+            print("✅ 처리할 새로운 기사가 없습니다.")
+            return None
+
+        print(f"✅ {len(df)}개 기사 로드 완료.")
+        return df
+
+    except SQLAlchemyError as e:
+        print(f"❌ DB 조회 오류: {e}")
+        return None
+
+
+def insert_analysis_report(engine: Engine, df: pd.DataFrame):
+    print(f"\n4단계: 분석 결과를 '{RESULT_TABLE_NAME}'에 저장 중...")
+
+    try:
+        df_insert = df[[
+            "article_id", "company_id", "title", "published_at",
+            "content", "url", "search_keyword", "cluster_id",
+            "summary", "topic"
+        ]].copy()
+
+        df_insert.rename(columns={
+            "article_id": "id",
+            "company_id": "기업명",
+            "published_at": "작성일",
+            "url": "링크",
+            "search_keyword": "비고"
+        }, inplace=True)
+
+        with engine.begin() as conn:
+            df_insert.to_sql(RESULT_TABLE_NAME, con=conn, if_exists="append", index=False, chunksize=100)
+
+        print(f"✅ {len(df)}개 기사 저장 완료.")
+
+    except SQLAlchemyError as e:
+        print(f"❌ DB 저장 오류: {e}")
+
+
+# --- AI 분석 ---
+def get_summary_and_topic(content: str, model: genai.GenerativeModel, categories: List[str]) -> Tuple[str, str]:
+    category_list = ", ".join(categories)
+    prompt = (
+        f"다음 뉴스 기사 본문을 읽고 두 가지를 수행하세요.\n"
+        f"1. 요약: 기사 내용을 2~3문장으로 간결히 요약.\n"
+        f"2. 토픽: 아래 목록 중 가장 적합한 하나를 선택.\n\n"
+        f"[토픽 목록]\n{category_list}\n\n"
+        f"[본문]\n{content}\n\n"
+        f"---응답 형식---\n"
+        f"요약: ...\n토픽: ..."
+    )
+
+    try:
+        res = model.generate_content(prompt)
+        text = res.text.strip().replace("**", "")
+
+        summary = re.search(r"요약:\s*(.*?)(?=\n?토픽:|\Z)", text, re.DOTALL)
+        topic = re.search(r"토픽:\s*(.*)", text)
+
+        summary_txt = summary.group(1).strip() if summary else "요약 실패"
+        topic_txt = topic.group(1).strip() if topic else "분류 실패"
+        topic_clean = next((c for c in categories if c in topic_txt), "분류 실패")
+
+        return summary_txt, topic_clean
+
     except Exception as e:
-        print(f"❌ API 키 또는 모델 설정 중 오류 발생: {e}")
-        exit()
+        return f"요약 오류: {e}", "분류 실패"
 
-def load_and_preprocess_data(filepath: str) -> pd.DataFrame:
-    """CSV 파일을 로드하고 분석에 맞게 전처리합니다."""
-    print(f"\n1단계: '{filepath}' 파일 로딩 및 전처리...")
-    try:
-        df = pd.read_csv(filepath, encoding='utf-8-sig')
-    except FileNotFoundError:
-        print(f"❌ 오류: '{filepath}' 파일을 찾을 수 없습니다.")
-        exit()
 
-    df.columns = df.columns.str.strip()
-    if '본문' in df.columns: df.rename(columns={'본문': 'content'}, inplace=True)
-    if '제목' in df.columns: df.rename(columns={'제목': 'title'}, inplace=True)
-    df.dropna(subset=['title', 'content'], inplace=True)
-    df.drop_duplicates(subset=['title'], keep='first', inplace=True)
-    df.reset_index(drop=True, inplace=True) # 그룹화를 위해 인덱스 재설정
-    print(f"✅ 총 {len(df)}개의 고유한 뉴스 기사를 준비했습니다.")
-    return df
-
+# --- 클러스터링 ---
 def cluster_articles(df: pd.DataFrame) -> pd.DataFrame:
-    """SentenceTransformer를 사용하여 기사들을 의미 기반으로 그룹화합니다."""
-    print(f"\n2단계: '{EMBEDDING_MODEL_NAME}' 모델로 기사 그룹화...")
-    model = SentenceTransformer(EMBEDDING_MODEL_NAME)
-    embeddings = model.encode(df['content'].tolist(), show_progress_bar=True)
-    
-    clusters = util.community_detection(embeddings, min_community_size=3, threshold=0.5)
-    
-    doc_id_to_cluster_id = {doc_id: i for i, cluster in enumerate(clusters) for doc_id in cluster}
-    
-    df['cluster_id'] = df.index.map(lambda x: doc_id_to_cluster_id.get(x, -1))
-    print(f"✅ {len(clusters)}개의 의미 있는 그룹을 발견했습니다.")
-    return df
+    print("\n2단계: 본문 유사도 기반 클러스터링 중...")
+    if df.empty:
+        df["cluster_id"] = np.nan
+        return df
 
-# [수정] 3단계: 토픽 분류 (프롬프트 고도화)
-def classify_clusters(df: pd.DataFrame, model: genai.GenerativeModel, categories: List[str]) -> Dict[int, str]:
-    """그룹화된 기사들을 Gemini API를 통해 주어진 카테고리로 분류합니다."""
-    print("\n3단계: Gemini API로 각 그룹의 토픽 분류...")
-    topic_map = {}
-    
-    valid_clusters = [c for c in df['cluster_id'].unique() if c != -1]
+    try:
+        model = SentenceTransformer("distiluse-base-multilingual-cased-v1")
+        embeddings = model.encode(df["content"].tolist())
+        clusters = util.community_detection(embeddings, min_community_size=2, threshold=0.8)
+        cluster_map = {doc_id: i for i, cluster in enumerate(clusters) for doc_id in cluster}
+        df["cluster_id"] = df.index.map(lambda x: cluster_map.get(x, -1))
 
-    for cluster_id in tqdm(valid_clusters, desc="그룹 토픽 분류 중"):
-        try:
-            cluster_df = df[df['cluster_id'] == cluster_id]
-            sample_titles = cluster_df.head(5)['title'].tolist()
-            titles_str = "\n".join([f"- {title}" for title in sample_titles])
+        print(f"✅ {len(clusters)}개 클러스터 탐지 완료.")
+        return df
 
-            category_list_str = f"[{', '.join(categories)}]"
-            
-            # [프롬프트 고도화] 취업준비생을 위한 페르소나 및 목적 부여
-            classification_prompt = (
-                f"당신은 취업 준비생의 면접 준비를 돕는 전문 커리어 애널리스트입니다.\n"
-                f"아래는 지원자가 관심 있는 기업의 최신 뉴스 제목들입니다. "
-                f"이 기사들의 핵심 주제를 파악하여, 지원자가 자기소개서나 면접에서 활용할 수 있도록 "
-                f"주어진 '직무/산업 토픽 목록'에서 가장 적합한 카테고리 하나만 골라주세요.\n\n"
-                f"대답은 모두 존댓말로 합니다.\n\n"
-                f"--- 직무/산업 토픽 목록 ---\n{category_list_str}\n\n"
-                f"--- 기사 제목 목록 ---\n{titles_str}\n\n"
-                f"가장 적합한 토픽 (목록에서 하나만 선택): "
-            )
-            
-            classification_response = model.generate_content(classification_prompt)
-            found_category = next((cat for cat in categories if cat in classification_response.text), "분류 실패")
-            topic_map[cluster_id] = found_category
+    except Exception as e:
+        print(f"❌ 클러스터링 오류: {e}")
+        df["cluster_id"] = -1
+        return df
 
-        except Exception as e:
-            print(f"  - 클러스터 {cluster_id} 처리 중 API 오류: {e}")
-            topic_map[cluster_id] = "API 오류"
-            
-    return topic_map
 
-# [신규] 4단계: 개별 기사 요약
-def generate_individual_summaries(df: pd.DataFrame, model: genai.GenerativeModel) -> pd.DataFrame:
-    """
-    모든 개별 기사에 대해 고유한 요약문을 생성합니다.
-    [주의] 이 함수는 기사 N개에 대해 N번의 API 호출을 실행합니다.
-    """
-    print(f"\n4단계: Gemini API로 {len(df)}개의 개별 기사 요약 생성...")
-    
-    def get_summary(content: str) -> str:
-        """단일 기사 본문을 받아 요약문을 반환하는 함수"""
-        try:
-            # [프롬프트 고도화] 취업준비생을 위한 'So What' 관점의 요약 지시
-            summary_prompt = (
-                f"당신은 취업 준비생의 면접 준비를 돕는 전문 커리어 애널리스트입니다.\n"
-                f"다음 뉴스 기사 본문을 읽고, 이 뉴스가 지원자에게 어떤 의미가 있는지(예: 회사의 성장 동력, 직면한 위기, 인재상 변화 등)에 초점을 맞춰 "
-                f"핵심 내용을 2-3문장으로 요약해주세요.\n\n"
-                f"대답은 모두 존댓말로 합니다.\n\n"
-                f"**[중요 지시] 응답은 어떠한 머리말, 인사, 또는 '요약:'과 같은 접두사도 붙이지 말고, 순수한 2-3문장의 요약 내용으로 즉시 시작해야 합니다.**\n\n"
-                f"--- 기사 본문 ---\n{content}\n\n"
-                f"요약:"
-            )
-            response = model.generate_content(summary_prompt)
-            return response.text.strip()
-        except Exception as e:
-            return f"요약 중 오류 발생: {e}"
+# --- 메인 ---
+def run_topic_worker():
+    print("--- InsightBee 토픽 분석 시작 ---")
 
-    # .progress_apply()를 사용하여 진행률 표시줄과 함께 모든 행에 함수 적용
-    df['summary'] = df['content'].progress_apply(get_summary)
-    return df
+    try:
+        engine = setup_db_engine()
+        gemini_model = setup_gemini()
+    except Exception as e:
+        print(f"❌ 초기 설정 실패: {e}")
+        return
 
-def main():
-    """메인 실행 함수"""
-    gemini_model = setup_gemini()
-    df = load_and_preprocess_data(INPUT_FILENAME)
-    df_clustered = cluster_articles(df)
-    
-    # 3단계: 토픽 분류
-    topic_map = classify_clusters(df_clustered, gemini_model, TOPIC_CATEGORIES)
-    df_clustered['topic'] = df_clustered['cluster_id'].map(topic_map).fillna('기타')
-    
-    # 4단계: 개별 기사 요약
-    df_final = generate_individual_summaries(df_clustered, gemini_model)
-    
-    df_final.to_csv(OUTPUT_FILENAME, index=False, encoding='utf-8-sig')
-    
-    print(f"\n🎉 모든 분석이 완료되었습니다! 결과가 '{OUTPUT_FILENAME}' 파일에 저장되었습니다.")
-    print("\n--- 최종 토픽 분류 요약 ---")
-    print(df_final['topic'].value_counts())
+    df_pending = fetch_all_unprocessed_articles(engine)
+    if df_pending is None or df_pending.empty:
+        return
+
+    df_clustered = cluster_articles(df_pending)
+
+    reps = df_clustered[df_clustered["cluster_id"] != -1].drop_duplicates(subset=["cluster_id"], keep="first")
+    uniques = df_clustered[df_clustered["cluster_id"] == -1]
+    df_target = pd.concat([reps, uniques]).sort_index()
+
+    print(f"✅ 분석 대상 기사 수: {len(df_target)}개")
+
+    results = []
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        futures = {
+            executor.submit(get_summary_and_topic, row["content"], gemini_model, TOPIC_CATEGORIES): row
+            for _, row in df_target.iterrows()
+        }
+
+        for future in tqdm(as_completed(futures), total=len(df_target), desc="AI 분석 중"):
+            row = futures[future]
+            try:
+                summary, topic = future.result()
+            except Exception as e:
+                summary, topic = f"API 오류: {e}", "분류 실패"
+
+            row["summary"], row["topic"] = summary, topic
+            results.append(row)
+
+    df_final = pd.DataFrame(results)
+    insert_analysis_report(engine, df_final)
+    print("\n🎉 모든 기사 분석 및 저장 완료.")
+
 
 if __name__ == "__main__":
-    main()
+    run_topic_worker()

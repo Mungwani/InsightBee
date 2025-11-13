@@ -23,6 +23,8 @@ tqdm = "^4.66.4"
 # kiwipiepy = ">=0.21.0,<0.22.0"
 # keybert = ">=0.9.0,<0.10.0"
 # bertopic = ">=0.17.3,<0.18.0"
+sqlalchemy = "^2.0.44"
+psycopg = {extras = ["binary"], version = "^3.2.12"}
 
 
 [build-system]
