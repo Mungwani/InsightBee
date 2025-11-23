@@ -1,6 +1,10 @@
 # config.py
 # 비밀 키, DB 정보, API 키, 고정 설정값 등
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 # --- Naver API 인증 키 ---
 NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
@@ -8,15 +12,19 @@ NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
 
 # --- Cloud SQL 접속 정보 ---
 DB_USER = os.getenv("DB_USER")
-DB_PASS = os.getenv("DB_PASS")
-DB_HOST = os.getenv("DB_HOST", "34.134.107.223")
-DB_PORT = os.getenv("DB_PORT",5432)
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
 
-if not all([DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME]):
+BQ_PROJECT = os.getenv("BQ_PROJECT")
+BQ_DATASET = os.getenv("BQ_DATASET")
+BQ_TABLE = os.getenv("BQ_TABLE")
+
+if not all([DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME]):
   raise ValueError("DB 접속 환경 변수가 설정되지 않았습니다.")
 
-DB_URL_ASYNC = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+DB_URL_ASYNC = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 # --- 스크래핑 정책 ---
 ARTICLES_PER_PAGE = 100
 TARGET_ARTICLES_PER_COMPANY = 300 

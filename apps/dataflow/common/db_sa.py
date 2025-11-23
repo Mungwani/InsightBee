@@ -6,8 +6,8 @@ from sqlalchemy.orm import sessionmaker # 세션 팩토리
 from sqlalchemy.future import select # SQLAlchemy 2.0 스타일 select
 from sqlalchemy.sql.expression import desc # 정렬(DESC)
 
-from .. import config # [!!수정 완료!!] 상위 폴더의 config 임포트 (DB_URL_ASYNC 등)
-from .models import Companies, NewsArticle # DB 테이블 스키마 (select 쿼리 시 필요)
+from apps.dataflow import config
+from apps.dataflow.common.models import Companies, NewsArticle
 
 # --- 1. 비동기 엔진 및 세션 설정 ---
 
