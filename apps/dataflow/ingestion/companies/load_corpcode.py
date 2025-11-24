@@ -76,7 +76,6 @@ def upsert_rows(session, rows: list[dict]) -> None:
             "name_ko":     ins.excluded.name_ko,
             "name_en":     ins.excluded.name_en,
             "stock_code":  ins.excluded.stock_code,
-            "modify_date": ins.excluded.modify_date,
         },
     )
     session.execute(stmt)

@@ -1,7 +1,20 @@
-# Python bytecode / cache
+# 가상환경 폴더
+venv/
+
+# 파이썬 캐시 파일 / 바이트코드 (main + feat/crawl)
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
 *.so
+
+# 에디터 및 OS 관련 파일
+.vscode/
+.idea/
+.DS_Store
+
+# 민감한 정보 파일 (main + feat/crawl)
 .env
+apps/dataflow/.env
+
+# feat/crawl 브랜치 고유 항목
+*.pycIcon
+Icon

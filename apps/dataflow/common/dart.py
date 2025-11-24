@@ -23,16 +23,9 @@ def parse_corpcode_xml(zip_bytes: bytes):
 
     root = ET.fromstring(xml_bytes) # XML 파싱 -> 루트 Element
     for el in root.findall(".//list"): # 경로에 해당하는 하위 노드 리스트
-        md = el.findtext("modify_date")
-        try:
-            modify_date = datetime.strptime(md, "%Y%m%d").date() if md else None
-        except ValueError:
-            modify_date = None
-    
         yield{
             "corp_code":    el.findtext("corp_code"),
             "name_ko":      el.findtext("corp_name"),
             "name_en":      el.findtext("corp_eng_name"),
             "stock_code":   el.findtext("stock_code"),
-            "modify_date":  modify_date,
         }
