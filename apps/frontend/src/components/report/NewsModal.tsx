@@ -1,4 +1,4 @@
-import NewsCard from "./NewsCard";
+import NewsCardList from "./NewsCardList";
 
 export default function NewsModal() {
   return (
@@ -27,11 +27,7 @@ export default function NewsModal() {
           </div>
           <div>3개의 기사가 있습니다</div>
           {/* 이 부분 페이지네이션 ㄱㄱ */}
-          <div>
-            <NewsCard />
-            <NewsCard />
-            <NewsCard />
-          </div>
+          <NewsCardList />
         </div>
       </div>
     </div>

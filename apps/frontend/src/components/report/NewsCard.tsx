@@ -18,14 +18,10 @@ export default function NewsCard() {
             <div>진</div>
             <div>1202-12-31 </div>
           </div>
-          <div className="bg-amber-200">실적</div>
         </div>
         {/* 오른쪽 버튼 */}
         <div className="flex text-[11px] gap-1">
-          <button className="w-[30px] h-[30px] !bg-white">*</button>
-          <button className="w-[70px] h-[30px] !bg-white border-solid !border-gray-200">
-            읽기 뿅
-          </button>
+          <button className="w-[70px] h-[30px] !bg-white">북마크</button>
         </div>
       </div>
     </div>

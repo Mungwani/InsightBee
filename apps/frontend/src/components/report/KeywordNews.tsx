@@ -1,18 +1,19 @@
-import NewsCardList from "./TopicCardList";
-import WordCloud from "./wordCloud";
+import TopicCardList from "./TopicCardList";
+// import WordCloud from "./wordCloud";
 import { sentimentWords } from "../../../public/data/newsData"; // 워드 클라우드 글자 데이터
 export default function KeywordNews() {
   // value가 큰 순서로 정렬
   const sortedWords = [...sentimentWords].sort((a, b) => b.value - a.value);
 
-  // 나중에 뉴스 목록 띄우기로 변경
-  const handleWordClick = (word: string) => {
-    alert(`"${word}" 단어를 클릭했어!`);
-  };
+  // // 나중에 뉴스 목록 띄우기로 변경
+  // const handleWordClick = (word: string) => {
+  //   alert(`"${word}" 단어를 클릭했어!`);
+  // };
 
   return (
     <div className="mt-3 space-y-4 px-4   ">
-      <section className="bg-white rounded-2xl shadow p-4">
+      {/* 워드클라우드 보류 */}
+      {/* <section className="bg-white rounded-2xl shadow p-4">
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-1">
             <div className="text-black">핵심 키워드</div>
@@ -24,7 +25,9 @@ export default function KeywordNews() {
             <WordCloud data={sentimentWords} onWordClick={handleWordClick} />
           </div>
         </div>
-      </section>
+      </section> */}
+
+      {/* 토픽별 분석 */}
       <section className="bg-white rounded-2xl shadow p-4">
         <div>
           <div className="flex flex-col gap-4">
@@ -34,7 +37,7 @@ export default function KeywordNews() {
                 AI가 주제별로 분류한 뉴스 토픽들입니다
               </div>
             </div>
-            <NewsCardList words={sortedWords} />
+            <TopicCardList words={sortedWords} />
           </div>
         </div>
       </section>

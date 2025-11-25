@@ -18,6 +18,9 @@ export default function TopicCard({ word }: TopicCardProps) {
         📄 {word.news}개 기사
       </button>
       <HashTag />
+      <div>
+        <div>뉴스 기사 보기</div>
+      </div>
     </div>
   );
 }
