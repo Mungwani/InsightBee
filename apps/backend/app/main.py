@@ -1,7 +1,22 @@
-from fastapi import FastAPI
+from dotenv import load_dotenv
+import os
 
-app = FastAPI()
+# 1. [필수] 앱 시작 전 환경변수(.env) 로드
+# DB 접속 정보 등을 config.py가 읽기 전에 메모리에 올려야 에러가 안 납니다.
+load_dotenv()
+
+from fastapi import FastAPI
+from app.api.api_router import api_router
+
+# FastAPI 앱 인스턴스 생성
+app = FastAPI(title="InsightBee API")
+
+# 2. 통합된 라우터 등록
+# 모든 API 주소 앞에 자동으로 '/api' 접두사가 붙습니다.
+# 예: /companies -> /api/companies
+app.include_router(api_router, prefix="/api")
 
 @app.get("/")
 def read_root():
-    return {"message": "Hello, InsightBee World"}
+    """서버 상태 확인용 기본 루트 API"""
+    return {"message": "InsightBee API Server Running (Modularized)"}
