@@ -2,6 +2,7 @@ import os
 import ast
 from typing import List, Generator, Any
 from google.cloud import bigquery
+from dotenv import load_dotenv
 
 # .env 파일 로드 (파일이 없으면 시스템 환경변수 사용)
 load_dotenv()

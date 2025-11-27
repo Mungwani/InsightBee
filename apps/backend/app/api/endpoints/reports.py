@@ -30,7 +30,7 @@ def get_report_summary(
         SELECT 
             r.article_id, 
             r.title, 
-            l.sentiment_score, 
+            l.sentiment, 
             l.one_sentence_summary
         FROM `{raw_id}` as r
         JOIN `{llm_id}` as l ON r.article_id = l.article_id
@@ -51,7 +51,7 @@ def get_report_summary(
     if not rows:
         raise HTTPException(404, "해당 기업의 분석 데이터를 찾을 수 없습니다.")
 
-    # [수정됨] 점수 계산 대신 글자('긍정', '부정')를 직접 셉니다.
+    # 점수 계산 대신 글자('긍정', '부정')를 직접 셉니다.
     total = len(rows)
     pos = 0
     neg = 0
@@ -116,8 +116,8 @@ def get_report_news_list(
     """
     뉴스 리스트 API : 필터링(긍/부정) 및 정렬 기능을 포함한 뉴스 목록 반환.
     """
-    raw_id = f"{PROJECT_ID}.{DATASET_ID}.{RAW_TABLE}"
-    llm_id = f"{PROJECT_ID}.{DATASET_ID}.{LLM_TABLE}"
+    raw_id = f"{PROJECT_ID}.{DATASET_ID}.{RAW_TABLE_NAME}"
+    llm_id = f"{PROJECT_ID}.{DATASET_ID}.{LLM_TABLE_NAME}"
     
     sql = f"""
         SELECT 
@@ -125,7 +125,7 @@ def get_report_news_list(
             r.title, 
             r.published_at, 
             r.url,
-            l.sentiment_score, 
+            l.sentiment, 
             l.topic, 
             l.one_sentence_summary
         FROM `{raw_id}` as r
@@ -175,7 +175,7 @@ def get_report_news_list(
             title=row.title,
             one_line_summary=row.one_sentence_summary if row.one_sentence_summary else row.title,
             source=source_name,  # 추출한 도메인 사용
-            published_at=row.published_at  # (None 허용은 response_dto 수정 후 문제 없음)
+            published_at=row.published_at if row.published_at else datetime.now() # (None 허용은 response_dto 수정 후 문제 없음)
         ))
     
     #딕셔너리를 리스트 형태로 반환
