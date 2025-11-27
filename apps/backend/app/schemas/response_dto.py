@@ -4,13 +4,12 @@ from datetime import datetime
 
 # ==========================================
 # [공통 사용 모델]
-# 여러 API에서 재사용되는 작은 부품들입니다.
 # ==========================================
 
 class SentimentRatio(BaseModel):
     """
     뉴스 기사들의 긍정/부정/중립 비율을 나타냅니다.
-    값은 0.0 ~ 1.0 사이의 실수(float)입니다.
+    값은 0.0 ~ 1.0 사이의 실수(float)
     """
     positive: float
     negative: float
@@ -18,50 +17,46 @@ class SentimentRatio(BaseModel):
 
 class CompanyItem(BaseModel):
     """
-    기업 검색 결과에 사용되는 기본 기업 정보 객체입니다.
+    기업 검색 결과 항목
     """
     company_id: int
     name_ko: str
 
 # ==========================================
 # [API별 응답(Response) 모델]
-# 실제 API가 반환하는 최종 JSON 구조입니다.
 # ==========================================
 
 # --- 1. 리포트 페이지용 ---
 
 class ReportSummaryResponse(BaseModel):
     """
-    [리포트 페이지 상단] 
-    기업 정보, 긍/부정 차트 데이터, AI 요약 포인트를 포함합니다.
+    리포트 상단 : 요약 정보 및 통계
     """
     company_name: str
     sentiment_ratio: SentimentRatio # 위에서 정의한 SentimentRatio 모델 재사용
-    positive_points: List[str]      # AI가 분석한 긍정적 요소 (문장 리스트)
-    risk_factors: List[str]         # AI가 분석한 리스크 요소 (문장 리스트)
+    positive_points: List[str]      # 긍정 요약 문장
+    risk_factors: List[str]         # 부정 요약 문장
 
 class NewsSimpleItem(BaseModel):
     """
-    리스트에 표시될 뉴스 기사 요약 정보입니다.
+    뉴스 리스트 아이템
     """
     article_id: int
     title: str
-    one_line_summary: str      # 기사 한 줄 요약 (현재는 제목 사용 중)
+    one_line_summary: str      
     source: str                # 언론사 이름
-    published_at: datetime     # 발행일
+    published_at: Optional[datetime]     # 발행일(날짜 없을 경우 -> null)
 
 class KeywordGroup(BaseModel):
     """
     특정 키워드로 묶인 뉴스 기사 그룹입니다.
-    예: "AI" 키워드 그룹 -> [기사1, 기사2...]
     """
     keyword: str
     news_items: List[NewsSimpleItem]
 
 class ReportNewsResponse(BaseModel):
     """
-    [리포트 페이지 하단]
-    키워드별로 그룹핑된 뉴스 목록 전체를 반환합니다.
+    리포트 하단 : 뉴스 목록 전체
     """
     keyword_groups: List[KeywordGroup]
 
@@ -70,11 +65,10 @@ class ReportNewsResponse(BaseModel):
 class NewsDetailResponse(BaseModel):
     """
     [뉴스 상세 페이지]
-    기사 클릭 시 보여줄 상세 정보를 정의합니다.
     """
     article_id: int
     title: str
     source: str
-    published_at: datetime
-    key_summary: str           # 기사 핵심 내용 요약 (AI 또는 앞부분 발췌)
-    original_link: str         # '원문 보러가기' 링크
+    published_at: Optional[datetime]
+    key_summary: str           # 기사 핵심 내용 요약
+    original_link: str         # 원본 링크
