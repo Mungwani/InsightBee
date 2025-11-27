@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
 import Summary from "../components/report/Summary";
 import KeywordNews from "../components/report/KeywordNews";
-import Tip from "../components/report/Tip";
 import ReportHeader from "../components/report/ReportHeader";
 
 export default function ReportPage() {

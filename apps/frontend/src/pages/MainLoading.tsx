@@ -51,7 +51,7 @@ export default function MainLoading() {
             style={animStyle}
         >
             {/* 🔶 상단 노란 드립 영역 (여기까지만 노란색!) */}
-            <div className="relative w-full h-[400px] overflow-hidden">
+            <div className="relative w-full h-[300px] overflow-hidden">
                 {/* 드립 이미지는 이 영역 안에서만 */}
                 <img
                     src={honeyBg}
@@ -67,7 +67,7 @@ export default function MainLoading() {
             </div>
 
             {/* 🔽 여기부터는 전부 흰 배경 영역 (벌/꽃/텍스트/바/버튼) */}
-            <div className="flex-1 w-full flex flex-col items-center pt-10 px-6">
+            <div className="flex-1 w-full flex flex-col items-center pt-30 px-6">
                 {/* 벌 + 꽃 (흰 배경 위!) */}
                 <div className="relative w-full flex items-end justify-center mb-8">
                     <img
