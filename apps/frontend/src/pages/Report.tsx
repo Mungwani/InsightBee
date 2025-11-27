@@ -27,7 +27,7 @@ export default function ReportPage() {
           className="overflow-y-auto mx-0 bg-white rounded-2xl shadow p-4 flex flex-col gap-4 items-center justify-between"
         >
           <div className="flex gap-5 items-center w-full">
-            <img src="/img/exLogo.png" alt="samsung" className="w-20 h-auto" />
+            <img src="/img/building.png" alt="samsung" className="ml-5 mt-2 w-13 h-auto" />
             <div className="flex flex-col">
               <div className="text-lg font-bold text-gray-500">삼성전자</div>
               <p className="text-sm text-gray-500">
@@ -70,21 +70,12 @@ export default function ReportPage() {
           >
             키워드별 뉴스
           </button>
-          <button
-            onClick={() => setTab("tip")}
-            type="button"
-            className={`w-[110px] h-[40px] rounded-full text-sm font-semibold ${tab === "tip" ? "bg-[#4F200D] text-white" : "bg-[#D7CCC8] text-[#4F200D]"
-              }`}
-          >
-            면접 TIP
-          </button>
         </div>
 
         {/* 탭 내용 */}
         <div className="overflow-y-auto mt-4 px-0 pb-16">
           {tab === "summary" && <Summary />}
           {tab === "keyword" && <KeywordNews />}
-          {tab === "tip" && <Tip />}
         </div>
       </main>
 

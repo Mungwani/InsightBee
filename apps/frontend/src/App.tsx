@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate, } from "react-router-
 import MainPage from "./pages/Main";
 import ReportPage from "./pages/Report";
 import NewsDetailPage from "./pages/NewsDetail";
-import ReportKeywordPage from "./pages/ReportKeyword";
 import MainLoading from "./pages/MainLoading";
 
 function App() {
@@ -19,7 +18,6 @@ function App() {
             <Route path="/main" element={<MainPage />} />
             <Route path="/main-loading" element={<MainLoading />} />
             <Route path="/report" element={<ReportPage />} />
-            <Route path="/report/keyword" element={<ReportKeywordPage />} />
             <Route path="/report/keyword/news-detail/:id" element={<NewsDetailPage />}
             />
           </Routes>

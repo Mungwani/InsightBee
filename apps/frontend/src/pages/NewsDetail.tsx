@@ -1,54 +1,62 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
-import type { NewsItem } from "../components/news/NewsList";
-import ReportHeader from "../components/report/ReportHeader"; // ✅ 추가
+import { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import ReportHeader from "../components/report/ReportHeader";
 
-interface LocationState {
-    item?: NewsItem;
+/** ✅ API 응답 타입 정의 */
+interface NewsDetail {
+    article_id: number;
+    title: string;
+    source: string;
+    published_at: string;
+    key_summary: string;
+    original_link: string;
 }
 
 export default function NewsDetailPage() {
     const { id = "" } = useParams<{ id: string }>();
-    const { state } = useLocation() as { state?: LocationState };
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const fallbackItem: NewsItem | undefined = useMemo(() => {
-        const pool: NewsItem[] = [
-            {
-                id: "art_001",
-                title: "[삼성전자] AI 투자 확대, HBM 생산능력 2배 증설",
-                publisher: "연합뉴스",
-                publishedAt: "2025-10-24T02:10:00Z",
-                summary:
-                    "삼성전자가 AI 반도체 수요 증가에 맞춰 HBM 생산능력 확대 계획 발표...",
-                sentiment: "positive",
-                url: "https://news.example.com/1",
-                content: "본문...",
-            },
-        ];
-        return pool.find((i) => i.id === id);
+    const [item, setItem] = useState<NewsDetail | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    /** ✅ API 호출: /api/news/{article_id} */
+    useEffect(() => {
+        const fetchDetail = async () => {
+            try {
+                const res = await fetch(`/api/news/${id}`);
+                if (!res.ok) throw new Error("뉴스 불러오기 실패");
+                const json: NewsDetail = await res.json();
+                setItem(json);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDetail();
     }, [id]);
 
-    const [item] = useState<NewsItem | undefined>(
-        state?.item ?? fallbackItem
-    );
-
-    useEffect(() => {
-        if (!item && id) {
-            // TODO: fetch(`/api/news/${id}`).then(setItem)
-        }
-    }, [id, item]);
-
+    /** 스크롤 맨 위로 이동 */
     useEffect(() => {
         containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }, [id]);
 
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-[#F9F5EE] flex flex-col">
+                <ReportHeader title="기사 원문" />
+                <main className="p-4 text-center text-gray-500">불러오는 중...</main>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-[#F9F5EE] flex flex-col">
-            {/* ✅ 통일된 노란 헤더 */}
+            {/* 상단 헤더 */}
             <ReportHeader title="기사 원문" />
 
-            {/* ✅ 뉴스 본문 */}
+            {/* 본문 */}
             <main className="relative z-10 -mt-6 p-4 flex-1">
                 <section
                     ref={containerRef}
@@ -56,24 +64,27 @@ export default function NewsDetailPage() {
                 >
                     {item ? (
                         <>
+                            {/* 제목 */}
                             <h1 className="text-2xl font-bold mb-2">{item.title}</h1>
+
+                            {/* 언론사 + 발행일 */}
                             <div className="text-sm text-gray-500 mb-4">
-                                {item.publisher} •{" "}
-                                {new Date(item.publishedAt).toLocaleString()}
+                                {item.source} •{" "}
+                                {new Date(item.published_at).toLocaleString()}
                             </div>
 
-                            {item.summary && (
-                                <p className="text-gray-700 mb-4">{item.summary}</p>
+                            {/* 핵심 요약 */}
+                            {item.key_summary && (
+                                <p className="text-gray-700 mb-4 whitespace-pre-line">
+                                    {item.key_summary}
+                                </p>
                             )}
 
-                            <article className="prose max-w-none text-gray-800">
-                                {item.content ?? "원문 본문을 불러오는 중입니다..."}
-                            </article>
-
+                            {/* 원문 이동 버튼 */}
                             <div className="mt-6">
-                                {item.url && (
+                                {item.original_link && (
                                     <a
-                                        href={item.url}
+                                        href={item.original_link}
                                         target="_blank"
                                         rel="noreferrer"
                                         className="px-4 py-2 rounded-lg font-semibold text-white transition"
@@ -85,7 +96,9 @@ export default function NewsDetailPage() {
                             </div>
                         </>
                     ) : (
-                        <div className="text-gray-500">해당 기사를 찾을 수 없습니다.</div>
+                        <div className="text-gray-500">
+                            해당 기사를 찾을 수 없습니다.
+                        </div>
                     )}
                 </section>
             </main>

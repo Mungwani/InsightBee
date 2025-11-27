@@ -1,4 +1,59 @@
 @import "tailwindcss";
+
+@keyframes floatSlow {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-18px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+@keyframes floatFast {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-25px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+@keyframes flowerSwing {
+    0% {
+        transform: translateX(-50%) rotate(0deg);
+    }
+
+    50% {
+        transform: translateX(-50%) rotate(3deg);
+    }
+
+    100% {
+        transform: translateX(-50%) rotate(0deg);
+    }
+}
+
+.animate-float-slow {
+    animation: floatSlow 3.5s ease-in-out infinite;
+}
+
+.animate-float-fast {
+    animation: floatFast 2.8s ease-in-out infinite;
+}
+
+.animate-flower-swing {
+    animation: flowerSwing 4.2s ease-in-out infinite;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

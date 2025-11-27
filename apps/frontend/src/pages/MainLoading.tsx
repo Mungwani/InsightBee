@@ -15,7 +15,7 @@ export default function MainLoading() {
     const rafRef = useRef<number | null>(null);
     const doneRef = useRef(false);
 
-    // 5초 진행 후 /report로 이동
+    // 5초 후 /report 이동
     useEffect(() => {
         const start = performance.now();
         const duration = 5000;
@@ -43,72 +43,83 @@ export default function MainLoading() {
         navigate("/main", { replace: true });
     };
 
-    // 첫 진입 슬라이드 업
     const animStyle = useMemo(() => ({ animation: "slideUp 480ms ease-out" }), []);
 
     return (
         <div
-            className="relative flex flex-col items-center w-full min-h-screen bg-[#FAF9F6] overflow-hidden"
+            className="flex flex-col items-center w-full min-h-screen bg-[#FAF9F6]"
             style={animStyle}
         >
-            {/* keyframes */}
-            <style>{`
-        @keyframes slideUp {
-          from { transform: translateY(20px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-      `}</style>
-
-            {/* 꿀 배경 드립 */}
-            <img
-                src={honeyBg}
-                alt="honey background"
-                className="absolute top-0 left-0 w-full h-auto pointer-events-none select-none"
-            />
-
-            {/* 상단 로고 */}
-            <div className="w-full flex justify-start px-6 pt-6 relative z-10">
-                <img src={logo} alt="InsightBee Logo" className="h-8" />
-            </div>
-
-            {/* 일러스트 */}
-            <div className="relative mt-28 z-10 flex items-end justify-center">
-                <img src={beeLeft} alt="Bee Left" className="h-[80px] mr-4" />
-                <img src={flower} alt="Flower" className="h-[160px]" />
-                <img src={beeRight} alt="Bee Right" className="h-[80px] ml-4" />
-            </div>
-
-            {/* 텍스트 */}
-            <div className="mt-8 text-center relative z-10">
-                <div
-                    className="text-[20px] font-extrabold text-[#4F200D]"
-                    style={{ fontFamily: "'Noto Sans KR', sans-serif" }}
-                >
-                    꿀 정보 모으는 중..
-                </div>
-                <div className="mt-2 text-[12px] text-gray-600">
-                    벌들이 열심히 최신 뉴스를 수집하고 분석하고 있습니다.
-                    {company ? <span className="ml-1 text-[#4F200D] font-semibold">({company})</span> : null}
-                </div>
-            </div>
-
-            {/* 진행 바 */}
-            <div className="mt-5 w-[80%] max-w-[320px] h-2 rounded-full bg-gray-200 overflow-hidden shadow-inner">
-                <div
-                    className="h-full bg-[#FFA000] transition-[width] duration-150 ease-out"
-                    style={{ width: `${progress}%` }}
+            {/* 🔶 상단 노란 드립 영역 (여기까지만 노란색!) */}
+            <div className="relative w-full h-[400px] overflow-hidden">
+                {/* 드립 이미지는 이 영역 안에서만 */}
+                <img
+                    src={honeyBg}
+                    alt="honey background"
+                    className="absolute inset-x-0 bottom-0 w-full h-auto pointer-events-none"
                 />
-            </div>
-            <div className="mt-1 text-xs text-gray-500">{progress}%</div>
 
-            {/* 취소 버튼 */}
-            <button
-                onClick={cancel}
-                className="mt-6 px-6 py-2 rounded-full text-white font-semibold shadow-md"
-                style={{ backgroundColor: "#4F200D" }}
-            >
-                취소하기
-            </button>
+                {/* 로고 (메인과 동일한 위치) */}
+                <div className="w-full flex justify-start px-6 pt-20 absolute top-0 left-0 z-10">
+                    <img src={logo} alt="InsightBee Logo" className="h-10" />
+                </div>
+
+            </div>
+
+            {/* 🔽 여기부터는 전부 흰 배경 영역 (벌/꽃/텍스트/바/버튼) */}
+            <div className="flex-1 w-full flex flex-col items-center pt-10 px-6">
+                {/* 벌 + 꽃 (흰 배경 위!) */}
+                <div className="relative w-full flex items-end justify-center mb-8">
+                    <img
+                        src={beeLeft}
+                        alt="Bee Left"
+                        className="h-[80px] mr-4 animate-float-slow"
+                    />
+                    <img
+                        src={flower}
+                        alt="Flower"
+                        className="h-[160px] animate-flower-rotate"
+                    />
+                    <img
+                        src={beeRight}
+                        alt="Bee Right"
+                        className="h-[80px] ml-4 animate-float-fast"
+                    />
+                </div>
+
+                {/* 텍스트 */}
+                <div className="text-center mb-5">
+                    <div className="text-[20px] font-extrabold text-[#4F200D]">
+                        꿀 정보 모으는 중...
+                    </div>
+                    <div className="mt-2 text-[12px] text-gray-600">
+                        벌들이 열심히 최신 뉴스를 수집하고 분석하고 있습니다.
+                        {company && (
+                            <span className="ml-1 text-[#4F200D] font-semibold">
+                                ({company})
+                            </span>
+                        )}
+                    </div>
+                </div>
+
+                {/* 로딩 바 */}
+                <div className="w-[80%] max-w-[320px] h-2 rounded-full bg-gray-200 overflow-hidden mb-1">
+                    <div
+                        className="h-full bg-[#FFA000] transition-[width] duration-200 ease-out"
+                        style={{ width: `${progress}%` }}
+                    />
+                </div>
+                <div className="text-xs text-gray-500 mb-6">{progress}%</div>
+
+                {/* 취소 버튼 */}
+                <button
+                    onClick={cancel}
+                    className="mt-2 px-6 py-2 rounded-full text-white font-semibold shadow-md"
+                    style={{ backgroundColor: "#4F200D" }}
+                >
+                    취소하기
+                </button>
+            </div>
         </div>
     );
 }
