@@ -7,9 +7,23 @@ load_dotenv()
 
 from fastapi import FastAPI
 from app.api.api_router import api_router
+from fastapi.middleware.cors import CORSMiddleware
 
 # FastAPI 앱 인스턴스 생성
 app = FastAPI(title="InsightBee API")
+
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,    # 허용할 도메인
+    allow_credentials=True,
+    allow_methods=["*"],      # GET, POST 등 모든 메서드 허용
+    allow_headers=["*"],      # 모든 헤더 허용
+)
 
 # 2. 통합된 라우터 등록
 # 모든 API 주소 앞에 자동으로 '/api' 접두사가 붙습니다.
