@@ -1,9 +1,31 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import Summary from "../components/report/Summary";
 import KeywordNews from "../components/report/KeywordNews";
 import Tip from "../components/report/Tip";
 import { useRef } from "react";
+import { fetchNewsByCompany } from "../services/report/getReport";
+import { useParams } from "react-router-dom";
+
 export default function ReportPage() {
+  const { companyName } = useParams();
+  const [newsData, setNewsData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!companyName) return;
+    fetchNewsByCompany(companyName)
+      .then((data) => {
+        setNewsData(data);
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
   const [tab, setTab] = useState("summary");
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -12,6 +34,9 @@ export default function ReportPage() {
       containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
+  console.log(newsData);
+  if (loading) return <div>뉴스를 불러오는 중...</div>;
+  if (!newsData) return <div>뉴스 데이터가 없습니다</div>;
   return (
     <div className="min-h-screen bg-[#F9F5EE] flex flex-col">
       {/* 상단 헤더 */}
@@ -91,7 +116,7 @@ export default function ReportPage() {
         {tab === "summary" && <Summary />}
 
         {/* 본문-키워드별 뉴스 */}
-        {tab === "keyword" && <KeywordNews />}
+        {tab === "keyword" && <KeywordNews newsData={newsData} />}
 
         {/* 본문-면접 tip */}
         {tab === "tip" && <Tip />}

@@ -2,8 +2,11 @@ import TopicCardList from "./TopicCardList";
 // import WordCloud from "./wordCloud";
 // import { sentimentWords } from "../../../public/data/newsData"; // 워드 클라우드 글자 데이터
 import { newsData } from "../../data/mock"; //뉴스 mock data
+import { fetchNewsByCompany } from "../../services/report/getReport";
+import { useState } from "react";
+import { useEffect } from "react";
 
-export default function KeywordNews() {
+export default function KeywordNews({ newsData }: any) {
   // value가 큰 순서로 정렬
   // const sortedWords = [...sentimentWords].sort((a, b) => b.value - a.value);
 
@@ -11,7 +14,7 @@ export default function KeywordNews() {
   // const handleWordClick = (word: string) => {
   //   alert(`"${word}" 단어를 클릭했어!`);
   // };
-  console.log(newsData);
+  if (!newsData) return <div>뉴스 데이터가 없습니다</div>;
 
   return (
     <div className="mt-3 space-y-4 px-4   ">

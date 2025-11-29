@@ -20,7 +20,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/main" />} />
             <Route path="/main" element={<MainPage />} />
-            <Route path="/report" element={<ReportPage />} />
+            <Route path="/report/:companyName" element={<ReportPage />} />
             <Route
               path="/report/keyword/news-detail"
               element={<NewsDetailPage />}
