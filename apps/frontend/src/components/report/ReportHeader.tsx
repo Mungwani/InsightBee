@@ -8,7 +8,7 @@ function ReportHeader({ title }: ReportHeaderProps) {
     const navigate = useNavigate();
     return (
         <header className="relative w-full h-[130px]">
-            <div className="absolute top-0 left-0 w-full h-[130px] bg-[#FED733] rounded-t-xl" />
+            <div className="absolute top-0 left-0 w-full h-[130px] bg-[#FED733] " />
             <div className="absolute left-1/2 top-[66px] w-full h-[135px] bg-[#FED733] rounded-b-[70%] -translate-x-1/2" />
             <div className="relative flex items-center justify-center pt-[54px] px-6 z-10">
                 <button

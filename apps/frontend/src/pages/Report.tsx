@@ -2,10 +2,16 @@ import { useState, useRef } from "react";
 import Summary from "../components/report/Summary";
 import KeywordNews from "../components/report/KeywordNews";
 import ReportHeader from "../components/report/ReportHeader";
+import { useLocation } from "react-router-dom";
 
 export default function ReportPage() {
   const [tab, setTab] = useState("summary");
   const containerRef = useRef<HTMLDivElement>(null);
+
+
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const companyName = params.get("company_name") || "기업명 없음";
 
   const scrollToTop = () => {
     containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
@@ -13,12 +19,12 @@ export default function ReportPage() {
 
   return (
     <div className="min-h-screen bg-[#F9F5EE] flex flex-col">
-      {/* 헤더는 뒤(z-0) */}
+      {/* 헤더 */}
       <div className="relative z-0">
         <ReportHeader title="리포트" />
       </div>
 
-      {/* 본문은 앞(z-10) + 위로 살짝 겹치기 */}
+      {/* 본문 */}
       <main className="relative z-10 -mt-6 p-4">
         {/* 기업 정보 카드 */}
         <section
@@ -26,11 +32,16 @@ export default function ReportPage() {
           className="overflow-y-auto mx-0 bg-white rounded-2xl shadow p-4 flex flex-col gap-4 items-center justify-between"
         >
           <div className="flex gap-5 items-center w-full">
-            <img src="/img/building.png" alt="samsung" className="ml-5 mt-2 w-13 h-auto" />
+            <img src="/img/building.png" alt="company" className="ml-5 mt-2 w-13 h-auto" />
+
             <div className="flex flex-col">
-              <div className="text-lg font-bold text-gray-500">삼성전자</div>
+
+              <div className="text-lg font-bold text-gray-500">
+                {companyName}
+              </div>
+
               <p className="text-sm text-gray-500">
-                반도체, IT · 가전의 세계적 선도 기업
+                기업 기본 설명(추후 API 연동 가능)
               </p>
             </div>
           </div>
@@ -40,12 +51,12 @@ export default function ReportPage() {
           <div className="flex justify-around w-full">
             <div className="flex gap-2 items-center justify-center">
               <img className="w-[15px] h-[17px]" src="/img/report1.png" alt="기업" />
-              <p className="text-[15px] text-gray-400 mt-1">반도체/IT</p>
+              <p className="text-[15px] text-gray-400 mt-1">업종 정보</p>
             </div>
             <div className="flex gap-2 items-center justify-center">
               <img className="w-[15px] h-[17px]" src="/img/report2.png" alt="기업" />
               <p className="text-[15px] text-gray-400 mt-1">
-                최근 7일간 총 24개의 기사 분석
+                최근 기사 분석 정보
               </p>
             </div>
           </div>
@@ -61,6 +72,7 @@ export default function ReportPage() {
           >
             핵심요약
           </button>
+
           <button
             onClick={() => setTab("keyword")}
             type="button"
@@ -73,8 +85,8 @@ export default function ReportPage() {
 
         {/* 탭 내용 */}
         <div className="overflow-y-auto mt-4 px-0 pb-16">
-          {tab === "summary" && <Summary />}
-          {tab === "keyword" && <KeywordNews />}
+          {tab === "summary" && <Summary companyName={companyName} />}
+          {tab === "keyword" && <KeywordNews companyName={companyName} />}
         </div>
       </main>
 

@@ -1,5 +1,6 @@
+// src/components/report/Summary.tsx
 import { useEffect, useState } from "react";
-import DonutChart from "./DonutChart"; // ← DonutChartTest 말고 이걸 사용!
+import DonutChart from "./DonutChart";
 
 interface SummaryData {
   company_name: string;
@@ -12,7 +13,11 @@ interface SummaryData {
   risk_factors: string[];
 }
 
-export default function Summary() {
+interface SummaryProps {
+  companyName: string;
+}
+
+export default function Summary({ companyName }: SummaryProps) {
   const [data, setData] = useState<SummaryData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -20,13 +25,14 @@ export default function Summary() {
   useEffect(() => {
     const fetchSummary = async () => {
       try {
-        const params = new URLSearchParams(location.search);
-        const companyName = params.get("company_name");
-
         if (!companyName) return;
 
+        const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
         const res = await fetch(
-          `/api/report/summary?company_name=${encodeURIComponent(companyName)}`
+          `${BASE_URL}/api/report/summary?company_name=${encodeURIComponent(
+            companyName
+          )}`
         );
         const json = await res.json();
 
@@ -39,25 +45,24 @@ export default function Summary() {
     };
 
     fetchSummary();
-  }, []);
+  }, [companyName]);
 
   if (loading) {
     return <div className="p-4 text-center text-gray-500">불러오는 중...</div>;
   }
 
-  if (!data) {
+  if (!data || !data.sentiment_ratio) {
     return (
-      <div className="p-4 text-center text-red-500">
-        요약 데이터를 찾을 수 없습니다.
+      <div className="p-4 text-center text-gray-500">
+        분석된 리포트 데이터가 없습니다.
       </div>
     );
   }
 
-  /** 🔥 DonutChart에 맞게 데이터 변환 */
   const donutData = [
-    { name: "긍정", value: data.sentiment_ratio.positive },
-    { name: "부정", value: data.sentiment_ratio.negative },
-    { name: "중립", value: data.sentiment_ratio.neutral },
+    { name: "긍정", value: data.sentiment_ratio?.positive ?? 0 },
+    { name: "부정", value: data.sentiment_ratio?.negative ?? 0 },
+    { name: "중립", value: data.sentiment_ratio?.neutral ?? 0 }
   ] as const;
 
   return (

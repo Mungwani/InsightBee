@@ -16,7 +16,9 @@ export default function Main() {
 
     const navigate = useNavigate();
 
-    /**  검색 시작 */
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+    /* 검색 시작 */
     const goLoading = (e: React.FormEvent) => {
         e.preventDefault();
         const query = q.trim();
@@ -24,7 +26,7 @@ export default function Main() {
         navigate("/main-loading", { state: { company: query } });
     };
 
-    /**  자동완성 API */
+    /* 자동완성 API */
     useEffect(() => {
         if (!q.trim()) {
             setSuggestions([]);
@@ -35,8 +37,9 @@ export default function Main() {
         const timer = setTimeout(async () => {
             try {
                 const res = await fetch(
-                    `/api/companies?query=${encodeURIComponent(q)}`
+                    `${BASE_URL}/api/companies?query=${encodeURIComponent(q)}`
                 );
+
                 const json = await res.json();
 
                 if (Array.isArray(json)) {
@@ -49,7 +52,7 @@ export default function Main() {
         }, 150);
 
         return () => clearTimeout(timer);
-    }, [q]);
+    }, [q, BASE_URL]);
 
     return (
         <div className="relative flex flex-col items-center w-full min-h-screen bg-[#FAF9F6] overflow-hidden">
@@ -67,7 +70,7 @@ export default function Main() {
             </h1>
 
             {/* 검색 박스 */}
-            <form onSubmit={goLoading} className="mt-6 w-80 bg-white rounded-2xl shadow-md p-4 flex flex-col items-center relative z-10">
+            <form onSubmit={goLoading} className="mt-12 w-80 bg-white rounded-2xl shadow-md p-4 flex flex-col items-center relative z-10">
                 <div className="flex items-center w-full border border-[#8B5E3C] rounded-lg px-3 py-2 relative">
                     <span className="text-[#8B5E3C] mr-2">🔍</span>
                     <input
@@ -79,7 +82,7 @@ export default function Main() {
                         className="flex-1 outline-none text-gray-700 placeholder:text-[#8B5E3C]"
                     />
 
-                    {/*  자동완성 리스트 */}
+                    {/* 자동완성 리스트 */}
                     {showList && suggestions.length > 0 && (
                         <ul
                             className="absolute top-[48px] left-0 w-full bg-white border border-[#8B5E3C] rounded-lg shadow-lg z-20 max-h-60 overflow-y-auto"
@@ -106,34 +109,14 @@ export default function Main() {
                 </button>
             </form>
 
-            {/* 벌 + 꽃 전체 영역 */}
-            <div className="relative w-full h-[430px] mt-20 z-10 pointer-events-none">
-
-                {/* 왼쪽 벌 */}
-                <img
-                    src={beeLeft}
-                    alt="left bee"
-                    className="absolute left-6 bottom-[60px] h-[90px] animate-float-slow"
-                />
-
-                {/* 꽃 (정중앙 아래로 더 내림) */}
+            {/* 벌 + 꽃 영역 */}
+            <div className="relative w-full h-[430px] mt-8 z-10 pointer-events-none">
+                <img src={beeLeft} alt="left bee" className="absolute left-6 bottom-[60px] h-[90px] animate-float-slow" />
                 <div className="absolute left-1/2 bottom-[-10px] -translate-x-1/2">
-                    <img
-                        src={flower}
-                        alt="Flower"
-                        className="h-[180px] animate-flower-rotate"
-                    />
+                    <img src={flower} alt="Flower" className="h-[180px] animate-flower-rotate" />
                 </div>
-
-                {/* 오른쪽 벌 */}
-                <img
-                    src={beeRight}
-                    alt="right bee"
-                    className="absolute right-6 bottom-[100px] h-[90px] animate-float-fast"
-                />
+                <img src={beeRight} alt="right bee" className="absolute right-6 bottom-[100px] h-[90px] animate-float-fast" />
             </div>
-
-
         </div>
     );
 }

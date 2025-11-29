@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* --------------------------
+    🔥 둥둥 떠다니는 벌 애니메이션
+--------------------------- */
 @keyframes floatSlow {
     0% {
         transform: translateY(0px);
@@ -28,20 +31,6 @@
     }
 }
 
-@keyframes flowerSwing {
-    0% {
-        transform: translateX(-50%) rotate(0deg);
-    }
-
-    50% {
-        transform: translateX(-50%) rotate(3deg);
-    }
-
-    100% {
-        transform: translateX(-50%) rotate(0deg);
-    }
-}
-
 .animate-float-slow {
     animation: floatSlow 3.5s ease-in-out infinite;
 }
@@ -50,10 +39,31 @@
     animation: floatFast 2.8s ease-in-out infinite;
 }
 
-.animate-flower-swing {
-    animation: flowerSwing 4.2s ease-in-out infinite;
+/* --------------------------
+    🌼 꽃 흔들리는 애니메이션
+    ※ translateX는 애니메이션에서 제거됨
+      → 부모 div에서만 translate 적용
+      → 꽃 중앙 고정 문제 해결!
+--------------------------- */
+@keyframes flowerRotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(3deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
 }
 
+.animate-flower-rotate {
+    animation: flowerRotate 4.2s ease-in-out infinite;
+}
+
+/* Tailwind Layer */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

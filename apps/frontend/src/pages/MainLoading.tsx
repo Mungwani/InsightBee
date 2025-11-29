@@ -27,8 +27,11 @@ export default function MainLoading() {
                 rafRef.current = requestAnimationFrame(tick);
             } else if (!doneRef.current) {
                 doneRef.current = true;
-                navigate("/report", { replace: true, state: { company } });
+                navigate(`/report?company_name=${encodeURIComponent(company)}`, {
+                    replace: true
+                });
             }
+
         };
         rafRef.current = requestAnimationFrame(tick);
 
@@ -50,7 +53,7 @@ export default function MainLoading() {
             className="flex flex-col items-center w-full min-h-screen bg-[#FAF9F6]"
             style={animStyle}
         >
-            {/* 🔶 상단 노란 드립 영역 (여기까지만 노란색!) */}
+            {/* 상단 노란 드립 영역 (여기까지만 노란색!) */}
             <div className="relative w-full h-[300px] overflow-hidden">
                 {/* 드립 이미지는 이 영역 안에서만 */}
                 <img
@@ -66,9 +69,8 @@ export default function MainLoading() {
 
             </div>
 
-            {/* 🔽 여기부터는 전부 흰 배경 영역 (벌/꽃/텍스트/바/버튼) */}
+            {/* 여기부터는 전부 흰 배경 영역 (벌/꽃/텍스트/바/버튼) */}
             <div className="flex-1 w-full flex flex-col items-center pt-30 px-6">
-                {/* 벌 + 꽃 (흰 배경 위!) */}
                 <div className="relative w-full flex items-end justify-center mb-8">
                     <img
                         src={beeLeft}
