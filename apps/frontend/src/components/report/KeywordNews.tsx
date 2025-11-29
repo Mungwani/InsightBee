@@ -1,10 +1,6 @@
 import TopicCardList from "./TopicCardList";
 // import WordCloud from "./wordCloud";
 // import { sentimentWords } from "../../../public/data/newsData"; // 워드 클라우드 글자 데이터
-import { newsData } from "../../data/mock"; //뉴스 mock data
-import { fetchNewsByCompany } from "../../services/report/getReport";
-import { useState } from "react";
-import { useEffect } from "react";
 
 export default function KeywordNews({ newsData }: any) {
   // value가 큰 순서로 정렬

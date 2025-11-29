@@ -51,7 +51,7 @@ export default function NewsCardList({ newsData, filter, sortOption }: any) {
           <button
             disabled={page === 1}
             onClick={() => setPage((p) => p - 1)}
-            className=" !bg-customBrown  border rounded disabled:opacity-40 !text-xs text-[white]"
+            className=" px-3 py-1.5 !bg-customBrown  border rounded disabled:opacity-40 !text-xs text-[white] cursor-pointer "
           >
             이전
           </button>
@@ -63,7 +63,7 @@ export default function NewsCardList({ newsData, filter, sortOption }: any) {
           <button
             disabled={page === totalPages}
             onClick={() => setPage((p) => p + 1)}
-            className=" !bg-customBrown  border rounded disabled:opacity-40 !text-xs text-[white]"
+            className=" px-3 py-1.5 !bg-customBrown  border rounded disabled:opacity-40 !text-xs text-[white] cursor-pointer"
           >
             다음
           </button>
