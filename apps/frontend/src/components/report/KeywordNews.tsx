@@ -1,14 +1,17 @@
 import TopicCardList from "./TopicCardList";
 // import WordCloud from "./wordCloud";
-import { sentimentWords } from "../../../public/data/newsData"; // 워드 클라우드 글자 데이터
+// import { sentimentWords } from "../../../public/data/newsData"; // 워드 클라우드 글자 데이터
+import { newsData } from "../../data/mock"; //뉴스 mock data
+
 export default function KeywordNews() {
   // value가 큰 순서로 정렬
-  const sortedWords = [...sentimentWords].sort((a, b) => b.value - a.value);
+  // const sortedWords = [...sentimentWords].sort((a, b) => b.value - a.value);
 
   // // 나중에 뉴스 목록 띄우기로 변경
   // const handleWordClick = (word: string) => {
   //   alert(`"${word}" 단어를 클릭했어!`);
   // };
+  console.log(newsData);
 
   return (
     <div className="mt-3 space-y-4 px-4   ">
@@ -37,7 +40,7 @@ export default function KeywordNews() {
                 AI가 주제별로 분류한 뉴스 토픽들입니다
               </div>
             </div>
-            <TopicCardList words={sortedWords} />
+            <TopicCardList newsData={newsData} />
           </div>
         </div>
       </section>

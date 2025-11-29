@@ -1,22 +1,35 @@
-export default function NewsCard() {
+interface newsCard {
+  title: string;
+  one_line_summary: string;
+  source: string;
+  published_at: string;
+  // onClick: void;
+}
+
+export default function NewsCard({
+  title,
+  one_line_summary,
+  source,
+  published_at,
+}: newsCard) {
   return (
     <div className="flex flex-col gap-4 text-black border border-gray-200 rounded-2xl p-[10px]">
       <div className="flex justify-between">
-        <div className="w-[80%]"> 제목</div>
+        <div className="w-[80%]"> {title}</div>
         <div>긍정</div>
       </div>
 
-      <div className="text-sm text-gray-400">요약</div>
+      <div className="text-sm text-gray-400">{one_line_summary}</div>
       <div className="flex justify-between items-center">
         {/* 왼쪽 */}
         <div className="flex gap-2 text-xs">
           <div className="flex gap-1">
             <div>사</div>
-            <div>연합뉴스</div>
+            <div>{source}</div>
           </div>
           <div className="flex gap-1">
             <div>진</div>
-            <div>1202-12-31 </div>
+            <div>{published_at} </div>
           </div>
         </div>
         {/* 오른쪽 버튼 */}
