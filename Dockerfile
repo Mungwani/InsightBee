@@ -23,8 +23,6 @@ COPY pyproject.toml poetry.lock* ./
 RUN poetry config virtualenvs.create false \
  && poetry install --no-root --no-interaction --no-ansi
 
-
-
 # 앱 코드 전체 복사
 COPY . .
 
@@ -32,8 +30,11 @@ COPY . .
 RUN useradd -m insightbee && chown -R insightbee /app
 USER insightbee
 
+# 작업 디렉토리 변경
+WORKDIR /app/apps/backend
+
 # Cloud Run 포트
 ENV PORT=8080
 
 # FastAPI 실행
-CMD ["bash", "-lc", "uvicorn apps.backend.app.main:app --host 0.0.0.0 --port ${PORT}"]
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]

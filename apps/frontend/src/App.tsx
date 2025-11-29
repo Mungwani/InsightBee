@@ -7,14 +7,14 @@ import {
 import MainPage from "./pages/Main";
 import ReportPage from "./pages/Report";
 import NewsDetailPage from "./pages/NewsDetail";
+import MainLoading from "./pages/MainLoading";
 
 function App() {
   return (
-    <div className="flex items-center justify-center w-screen h-screen bg-[#FFF7D7]">
-      {/* iPhone 14 Pro 화면 비율 고정 */}
+    <div className="flex items-center justify-center w-screen h-100% bg-[#FFF7D7]">
       <div
-        className="bg-white shadow-xl overflow-y-auto no-scrollbar rounded-xl"
-        style={{ width: "430px", height: "932px" }}
+        className="bg-white shadow-xl overflow-y-auto no-scrollbar"
+        style={{ width: "430px" }}
       >
         <Router>
           <Routes>
@@ -25,6 +25,11 @@ function App() {
               path="/report/keyword/news-detail"
               element={<NewsDetailPage />}
             />
+            <Route
+              path="/report/keyword/news-detail/:id"
+              element={<NewsDetailPage />}
+            />
+            <Route path="/main-loading" element={<MainLoading />} />
           </Routes>
         </Router>
       </div>
