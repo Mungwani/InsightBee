@@ -27,9 +27,8 @@ export default function MainLoading() {
                 rafRef.current = requestAnimationFrame(tick);
             } else if (!doneRef.current) {
                 doneRef.current = true;
-                navigate(`/report?company_name=${encodeURIComponent(company)}`, {
-                    replace: true
-                });
+                navigate(`/report/${encodeURIComponent(company)}`, { replace: true });
+
             }
 
         };
