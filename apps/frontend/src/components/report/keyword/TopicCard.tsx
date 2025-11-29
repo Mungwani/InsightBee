@@ -1,5 +1,3 @@
-import HashTag from "./HashTag";
-
 interface TopicCard {
   title: string;
   newsLength: number;

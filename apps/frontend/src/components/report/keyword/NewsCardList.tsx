@@ -37,7 +37,7 @@ export default function NewsCardList({ newsData, filter, sortOption }: any) {
       {/* 카드 목록 */}
       {paginatedData.map((item: any) => (
         <NewsCard
-          key={item.article_id}
+          article_id={item.article_id}
           title={item.title}
           one_line_summary={item.one_line_summary}
           source={item.source}
@@ -51,7 +51,7 @@ export default function NewsCardList({ newsData, filter, sortOption }: any) {
           <button
             disabled={page === 1}
             onClick={() => setPage((p) => p - 1)}
-            className=" !bg-customBrown  border rounded disabled:opacity-40 !text-xs text-[white]"
+            className=" !bg-customBrown  border rounded disabled:opacity-40 !text-xs text-[black]"
           >
             이전
           </button>
@@ -63,7 +63,7 @@ export default function NewsCardList({ newsData, filter, sortOption }: any) {
           <button
             disabled={page === totalPages}
             onClick={() => setPage((p) => p + 1)}
-            className=" !bg-customBrown  border rounded disabled:opacity-40 !text-xs text-[white]"
+            className=" !bg-customBrown  border rounded disabled:opacity-40 !text-xs text-[black]"
           >
             다음
           </button>
