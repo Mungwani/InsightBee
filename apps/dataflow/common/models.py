@@ -100,6 +100,14 @@ class NewsArticle(Base):
     # is_passed_rule (불리언, 필수, 인덱스) - filter.py가 판단한 최종 통과 여부 (True/False)
     is_passed_rule = Column(Boolean, nullable=False, index=True)
 
+    # [추가] 클러스터링 결과 저장용
+    # 같은 주제로 묶인 그룹 ID (예: 10번 그룹에 5개 기사가 묶임)
+    cluster_id = Column(Integer, nullable=True, index=True) 
+    
+    # [추가] 대표 기사 여부 (True면 보여주고, False면 중복이라 숨김)
+    is_representative = Column(Boolean, default=True)
+    
+    
     def __repr__(self):
         """
         [디버깅용]
