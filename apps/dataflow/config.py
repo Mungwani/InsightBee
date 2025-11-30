@@ -24,7 +24,8 @@ TABLE_NEWS_RAW = os.getenv("TABLE_NEWS_RAW")
 if not all([DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME]):
   raise ValueError("DB 접속 환경 변수가 설정되지 않았습니다.")
 
-DB_URL_ASYNC = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+DB_URL_ASYNC = os.getenv("DB_URL")
+
 # --- 스크래핑 정책 ---
 ARTICLES_PER_PAGE = 100
 TARGET_ARTICLES_PER_COMPANY = 300 
