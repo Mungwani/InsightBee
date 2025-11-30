@@ -68,18 +68,27 @@ async def load_company_map_async() -> Dict[str, int]:
                 Companies.name_ko,
                 desc(Companies.id) # 혹시 모를 이름 중복 시 id가 높은(최신) 것을 사용
             )
+
             result = await session.execute(stmt)
-            
-            # (회사명, ID) 튜플 리스트를 딕셔너리로 변환
+            rows = result.all()
             company_map = {name: company_id for name, company_id in result.all()}
+
             
+            # 디버깅용: 앞에 몇 개만 찍어보기
+            logging.info(f"[DB] companies rows: {len(rows)}")
+            if rows:
+                logging.info(f"[DB] sample companies: {[rows[i] for i in range(min(3, len(rows)))]}")
+            
+
+            
+
             logging.info(f"Loaded {len(company_map)} unique company mappings.")
             if not company_map:
                 logging.warning("Company map is empty. 'companies' table may be empty.")
             return company_map
             
         except Exception as e:
-            logging.error(f"Failed to load company map: {e}")
+            logging.exception("Failed to load company map from DB")
             return {}
 
 async def get_existing_url_hashes_async() -> Set[str]:
