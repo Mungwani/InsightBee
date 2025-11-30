@@ -17,9 +17,9 @@ DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
 
-BQ_PROJECT = os.getenv("BQ_PROJECT")
-BQ_DATASET = os.getenv("BQ_DATASET")
-BQ_TABLE = os.getenv("BQ_TABLE")
+GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
+BIGQUERY_DATASET_ID = os.getenv("BIGQUERY_DATASET_ID")
+TABLE_NEWS_RAW = os.getenv("TABLE_NEWS_RAW")
 
 if not all([DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME]):
   raise ValueError("DB 접속 환경 변수가 설정되지 않았습니다.")

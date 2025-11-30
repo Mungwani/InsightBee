@@ -42,8 +42,8 @@ async def run_full_load() -> None:
     print(f"[FULL LOAD] fetched {len(rows)} rows from Cloud SQL")
 
     # 2) BigQuery 클라이언트
-    client = bigquery.Client(project=config.BQ_PROJECT)
-    table_id = f"{config.BQ_PROJECT}.{config.BQ_DATASET}.{config.BQ_TABLE}"
+    client = bigquery.Client(project=config.GCP_PROJECT_ID)
+    table_id = f"{config.GCP_PROJECT_ID}.{config.BIGQUERY_DATASET_ID}.{config.TABLE_NEWS_RAW}"
 
     ingested_at = datetime.now(timezone.utc)
 

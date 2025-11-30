@@ -3,8 +3,6 @@ import asyncio
 import logging
 import time
 import aiohttp
-from datetime import datetime
-from typing import Dict, Any, Optional
 from tqdm.asyncio import tqdm
 
 from dotenv import load_dotenv
