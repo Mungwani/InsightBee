@@ -1,4 +1,5 @@
 steps:
+# 1) dataflow 이미지 빌드
   - name: gcr.io/cloud-builders/docker
     args:
       - build
@@ -8,24 +9,36 @@ steps:
       - $_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$_REPO_NAME/$_SERVICE_NAME:$BUILD_ID
       - .
     id: Build
-
+# 2) 이미지 푸시
   - name: gcr.io/cloud-builders/docker
     args:
       - push
       - $_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$_REPO_NAME/$_SERVICE_NAME:$BUILD_ID
     id: Push
-    
+# 3) 크롤러 Job 이미지 업데이트
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
     entrypoint: gcloud
     args:
       - run
       - jobs
       - update
-      - insightbee-crawler          # ← Cloud Run Job 이름
+      - insightbee-crawler        
       - --image=$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$_REPO_NAME/$_SERVICE_NAME:$BUILD_ID
       - --region=europe-west1
       - --project=sesac-yoojikol
-    id: UpdateJob
+    id: UpdateCrawlerJob
+# 4) BQ 로더 Job 이미지 업데이트
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: gcloud
+    args:
+      - run
+      - jobs
+      - update
+      - insightbee-bq-loader
+      - --image=$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$_REPO_NAME/$_SERVICE_NAME:$BUILD_ID
+      - --region=europe-west1
+      - --project=sesac-yoojikol
+    id: UpdateBqLoaderJob
 
 images:
   - $_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$_REPO_NAME/$_SERVICE_NAME:$BUILD_ID
