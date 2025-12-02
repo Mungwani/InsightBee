@@ -29,7 +29,7 @@ export default function NewsDetailPage() {
                 setLoading(true);
                 setError("");
 
-                const res = await fetch(`/api/news/${id}`);
+                const res = await fetch(`${BASE_URL}/api/news/${id}`);
                 if (!res.ok) throw new Error("뉴스 불러오기 실패");
 
                 const json = await res.json();
