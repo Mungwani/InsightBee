@@ -7,13 +7,11 @@ export default function NewsCardList({ newsData, filter, sortOption }: any) {
   const [page, setPage] = useState(1);
   const itemsPerPage = 3;
 
-  // 1) 필터링
   const filteredData = useMemo(() => {
     if (filter === "전체") return newsData;
     return newsData.filter((item: any) => item.sentiment === filter);
   }, [newsData, filter]);
 
-  // 2) 정렬
   const sortedData = useMemo(() => {
     return [...filteredData].sort((a: any, b: any) => {
       const dateA = new Date(a.published_at).getTime();
@@ -28,18 +26,15 @@ export default function NewsCardList({ newsData, filter, sortOption }: any) {
     setPage(1);
   }, [filter, sortOption]);
 
-  // 3) 페이지네이션 계산
   const totalPages = Math.ceil(sortedData.length / itemsPerPage);
   const paginatedData = sortedData.slice(
     (page - 1) * itemsPerPage,
     page * itemsPerPage
   );
 
-  // 🎨 데이터가 없을 경우 표시할 UI (색상 추가)
   if (sortedData.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        {/* 아이콘에 배경색 포인트 추가 */}
         <div className="w-16 h-16 bg-[#FFF3E0] rounded-full flex items-center justify-center mb-4">
           <SearchX className="w-8 h-8 text-[#FFA000]" />
         </div>
@@ -51,7 +46,6 @@ export default function NewsCardList({ newsData, filter, sortOption }: any) {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* 카드 목록 */}
       <div className="flex flex-col gap-4 min-h-[300px]">
         {paginatedData.map((item: any) => (
           <NewsCard
@@ -65,7 +59,6 @@ export default function NewsCardList({ newsData, filter, sortOption }: any) {
         ))}
       </div>
 
-      {/* 🎨 페이지네이션 버튼 (색상 포인트) */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-4 mt-2 mb-4">
           <button

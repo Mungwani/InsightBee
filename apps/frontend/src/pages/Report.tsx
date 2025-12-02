@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/pages/Report.tsx
 import { useState, useRef } from "react";
 import { useParams, useLocation } from "react-router-dom";
@@ -18,7 +19,6 @@ export default function ReportPage() {
   const [tab, setTab] = useState("summary");
   const containerRef = useRef<HTMLDivElement>(null);
 
-  /** ❗ 새로고침하면 state가 사라지므로 fallback */
   if (!summaryData || !newsData) {
     return <div className="p-6">데이터가 없습니다. (새로고침 금지)</div>;
   }

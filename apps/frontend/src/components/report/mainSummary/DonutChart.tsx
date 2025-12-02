@@ -12,7 +12,6 @@ interface DonutChartProps {
   data: readonly DataItem[];
 }
 
-// 눈이 편안하고 세련된 컬러 팔레트
 const COLORS: Record<Sentiment, string> = {
   긍정: "#34D399", // Soft Emerald (부드러운 초록)
   부정: "#F87171", // Soft Red (부드러운 빨강)
@@ -20,11 +19,9 @@ const COLORS: Record<Sentiment, string> = {
 };
 
 const DonutChart: React.FC<DonutChartProps> = ({ data }) => {
-  // ✅ 비율 및 Top 라벨 계산 (useMemo로 최적화)
   const { chartData, topItem } = useMemo(() => {
     const total = data.reduce((sum, item) => sum + item.value, 0);
 
-    // 데이터가 없을 경우 방어 코드
     if (total === 0) return { chartData: [], topItem: null };
 
     const processedData = data.map((item) => ({
@@ -39,7 +36,6 @@ const DonutChart: React.FC<DonutChartProps> = ({ data }) => {
     return { chartData: processedData, topItem: maxItem };
   }, [data]);
 
-  // 데이터가 없을 때 렌더링 안 함 (혹은 빈 상태 표시)
   if (!topItem) return <div className="text-gray-400 text-sm">데이터 없음</div>;
 
   return (
@@ -52,12 +48,12 @@ const DonutChart: React.FC<DonutChartProps> = ({ data }) => {
               data={chartData}
               cx="50%"
               cy="50%"
-              innerRadius={65} // 내부 공간 확보
-              outerRadius={90} // 두께 조절
-              paddingAngle={3} // 조각 사이 간격
+              innerRadius={65}
+              outerRadius={90}
+              paddingAngle={3}
               dataKey="value"
-              cornerRadius={6} // ⭐ 모서리 둥글게 (모던함의 핵심)
-              stroke="none" // 테두리 선 제거
+              cornerRadius={6}
+              stroke="none"
             >
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[entry.name]} />
@@ -66,7 +62,6 @@ const DonutChart: React.FC<DonutChartProps> = ({ data }) => {
           </PieChart>
         </ResponsiveContainer>
 
-        {/* 중앙 텍스트 (절대 위치로 중앙 배치) */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <span className="text-xs text-gray-400 font-medium mb-1">주요 여론</span>
           <p
@@ -81,7 +76,6 @@ const DonutChart: React.FC<DonutChartProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* 범례 (Legend) */}
       <div className="flex justify-center gap-4 mt-2">
         {chartData.map((item) => (
           <div

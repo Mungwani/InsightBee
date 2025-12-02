@@ -10,10 +10,8 @@ export default function NewsModal({ newsData }: any) {
   return (
     <div className="flex flex-col w-full h-full mt-5">
 
-      {/* 1. 헤더 영역 */}
       <div className="flex flex-row justify-between items-end mb-3 border-b border-gray-100">
 
-        {/* [왼쪽 그룹] 타이틀 + 건수 */}
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-gray-100 rounded-lg">
@@ -28,11 +26,8 @@ export default function NewsModal({ newsData }: any) {
         </div>
       </div>
 
-      {/* [오른쪽 그룹] 필터 & 정렬 (슬림 버전) */}
-      {/* justify-right (X) -> ml-auto (O) */}
       <div className="flex gap-2 ml-auto mb-2 mr-1">
 
-        {/* 필터 Select */}
         <div className="relative">
           <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none z-10">
             <Filter className="w-3 h-3 text-gray-500" />
@@ -51,7 +46,6 @@ export default function NewsModal({ newsData }: any) {
           </div>
         </div>
 
-        {/* 정렬 Select */}
         <div className="relative">
           <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none z-10">
             <ArrowUpDown className="w-3 h-3 text-gray-500" />
@@ -70,7 +64,6 @@ export default function NewsModal({ newsData }: any) {
         </div>
       </div>
 
-      {/* 2. 리스트 영역 */}
       <div className="flex-1 min-h-0">
         <NewsCardList
           newsData={newsData || []}

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { CalendarDays, Newspaper, ChevronRight } from "lucide-react"; // 아이콘 추가
+import { CalendarDays, Newspaper, ChevronRight } from "lucide-react";
 
 interface NewsCardProps {
   article_id: number;
@@ -7,7 +7,6 @@ interface NewsCardProps {
   one_line_summary: string;
   source: string;
   published_at: string;
-  // sentiment?: "긍정" | "부정" | "중립"; // 나중에 데이터 들어오면 주석 해제해서 쓰세요
 }
 
 export default function NewsCard({
@@ -28,6 +27,7 @@ export default function NewsCard({
     try {
       const date = new Date(dateString);
       return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return dateString; // 에러나면 원래 문자열 반환
     }
@@ -43,11 +43,9 @@ export default function NewsCard({
         <h4 className="text-[16px] font-bold text-gray-800 leading-snug group-hover:text-[#4F200D] transition-colors">
           {title}
         </h4>
-        {/* 긍정/부정 뱃지가 필요하다면 여기에 추가 (지금은 데이터가 없어서 생략하거나 주석 처리) */}
-        {/* <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-md font-medium whitespace-nowrap">긍정</span> */}
       </div>
 
-      {/* 중간: 요약 (2줄까지만 표시하고 말줄임표) */}
+      {/* 중간: 요약 */}
       <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
         {one_line_summary}
       </p>
@@ -67,7 +65,7 @@ export default function NewsCard({
           </div>
         </div>
 
-        {/* '기사보기' 버튼 (카드 전체가 클릭되므로 시각적 유도만 함) */}
+        {/* '기사보기' 버튼 */}
         <button
           className="flex items-center gap-1 pl-3 pr-2 py-1.5 rounded-lg text-xs font-semibold text-gray-600 bg-gray-100 group-hover:bg-[#4F200D] group-hover:text-white transition-colors duration-200"
         >

@@ -1,8 +1,7 @@
-import { Layers, FileWarning } from "lucide-react"; // 아이콘 추가
+import { Layers, FileWarning } from "lucide-react";
 import TopicCardList from "./TopicCardList";
-// import WordCloud from "./wordCloud";
-// import { sentimentWords } from "../../../public/data/newsData";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function KeywordNews({ newsData }: any) {
   // 데이터가 없을 때 예쁜 Empty State 보여주기
   if (!newsData) {

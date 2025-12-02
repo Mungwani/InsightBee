@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/components/TopicCardList.tsx
 
 import { useState } from "react";
 import TopicCard from "./TopicCard";

@@ -39,7 +39,6 @@ export default function Summary({ summaryData, loading }: SummaryProps) {
   return (
     <div className="mt-3 space-y-4 px-4">
       <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-        {/* 메인 타이틀 */}
         <div className="flex items-center gap-2 mb-4">
           <Sparkles className="w-5 h-5 text-[#FFA000]" fill="#FFA000" />
           <h3 className="text-lg font-bold text-gray-800">
@@ -48,7 +47,6 @@ export default function Summary({ summaryData, loading }: SummaryProps) {
         </div>
 
         <div className="flex flex-col gap-3">
-          {/* 긍정 포인트 박스 */}
           <div className="bg-green-50 rounded-xl p-4 border border-green-100">
             <div className="flex items-center gap-2 mb-3">
               <TrendingUp className="w-4 h-4 text-green-600" />
@@ -57,7 +55,6 @@ export default function Summary({ summaryData, loading }: SummaryProps) {
             <ul className="space-y-2">
               {summaryData.positive_points.map((p, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                  {/* 아이콘이 텍스트 첫 줄 높이에 맞게 mt-0.5 또는 mt-1 설정 */}
                   <Check className="w-3.5 h-3.5 text-green-600 mt-[3px] flex-shrink-0" strokeWidth={3} />
                   <span className="leading-tight">{p}</span>
                 </li>
@@ -65,7 +62,6 @@ export default function Summary({ summaryData, loading }: SummaryProps) {
             </ul>
           </div>
 
-          {/* 리스크 요인 박스 */}
           <div className="bg-red-50 rounded-xl p-4 border border-red-100">
             <div className="flex items-center gap-2 mb-3">
               <AlertTriangle className="w-4 h-4 text-red-600" />
@@ -84,9 +80,7 @@ export default function Summary({ summaryData, loading }: SummaryProps) {
       </section>
 
       <section className="bg-white rounded-2xl shadow p-4">
-        {/* 타이틀 영역 */}
         <div className="flex items-center gap-2 mb-4">
-          {/* 아이콘 스타일링 */}
           <ChartIcon className="w-5 h-5 text-blue-800" />
           <h3 className="text-lg font-bold text-gray-700">뉴스 긍부정 비율</h3>
         </div>
