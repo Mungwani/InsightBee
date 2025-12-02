@@ -28,4 +28,4 @@ function ReportHeader({ title }: ReportHeaderProps) {
     );
 }
 
-export default ReportHeader; // ✅ default export
+export default ReportHeader; 
