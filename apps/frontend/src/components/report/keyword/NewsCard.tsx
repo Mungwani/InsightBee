@@ -1,12 +1,13 @@
 import { useNavigate } from "react-router-dom";
+import { CalendarDays, Newspaper, ChevronRight } from "lucide-react"; // 아이콘 추가
 
-interface newsCard {
+interface NewsCardProps {
   article_id: number;
   title: string;
   one_line_summary: string;
   source: string;
   published_at: string;
-  // onClick: void;
+  // sentiment?: "긍정" | "부정" | "중립"; // 나중에 데이터 들어오면 주석 해제해서 쓰세요
 }
 
 export default function NewsCard({
@@ -15,43 +16,64 @@ export default function NewsCard({
   one_line_summary,
   source,
   published_at,
-}: newsCard) {
+}: NewsCardProps) {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    // ✅ /news/:id 로 이동
     navigate(`/news/${article_id}`);
   };
 
+  // ✅ 날짜 포맷팅 함수 (YYYY.MM.DD)
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+    } catch (e) {
+      return dateString; // 에러나면 원래 문자열 반환
+    }
+  };
+
   return (
-    <div className="flex flex-col gap-4 text-black border border-gray-200 rounded-2xl p-[10px]">
-      <div className="flex justify-between">
-        <div className="w-[80%]"> {title}</div>
-        <div>긍정</div>
+    <div
+      onClick={handleClick}
+      className="flex flex-col gap-3 bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-[#D7CCC8] transition-all duration-200 cursor-pointer group"
+    >
+      {/* 상단: 타이틀 */}
+      <div className="flex justify-between items-start gap-2">
+        <h4 className="text-[16px] font-bold text-gray-800 leading-snug group-hover:text-[#4F200D] transition-colors">
+          {title}
+        </h4>
+        {/* 긍정/부정 뱃지가 필요하다면 여기에 추가 (지금은 데이터가 없어서 생략하거나 주석 처리) */}
+        {/* <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-md font-medium whitespace-nowrap">긍정</span> */}
       </div>
 
-      <div className="text-sm text-gray-400">{one_line_summary}</div>
-      <div className="flex justify-between items-center">
-        {/* 왼쪽 */}
-        <div className="flex gap-2 text-xs">
-          <div className="flex gap-1">
-            <div>사</div>
-            <div>{source}</div>
+      {/* 중간: 요약 (2줄까지만 표시하고 말줄임표) */}
+      <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
+        {one_line_summary}
+      </p>
+
+      {/* 하단: 정보 및 날짜 */}
+      <div className="flex justify-between items-end mt-1 pt-3 border-t border-gray-50">
+        <div className="flex flex-col gap-1.5">
+          {/* 언론사 */}
+          <div className="flex items-center gap-1.5 text-xs text-gray-500">
+            <Newspaper className="w-3.5 h-3.5" />
+            <span className="font-medium">{source}</span>
           </div>
-          <div className="flex gap-1">
-            <div>진</div>
-            <div>{published_at} </div>
+          {/* 날짜 */}
+          <div className="flex items-center gap-1.5 text-xs text-gray-400">
+            <CalendarDays className="w-3.5 h-3.5" />
+            <span>{formatDate(published_at)}</span>
           </div>
         </div>
-        {/* 오른쪽 버튼 */}
-        <div className="flex text-[11px] gap-1">
-          <button
-            className="w-[70px] h-[30px] !bg-white border border-gray-300 rounded-lg"
-            onClick={handleClick} // ✅ 여기!
-          >
-            기사보기
-          </button>
-        </div>
+
+        {/* '기사보기' 버튼 (카드 전체가 클릭되므로 시각적 유도만 함) */}
+        <button
+          className="flex items-center gap-1 pl-3 pr-2 py-1.5 rounded-lg text-xs font-semibold text-gray-600 bg-gray-100 group-hover:bg-[#4F200D] group-hover:text-white transition-colors duration-200"
+        >
+          기사보기
+          <ChevronRight className="w-3 h-3" />
+        </button>
       </div>
     </div>
   );

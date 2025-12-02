@@ -1,28 +1,34 @@
 // src/service/newsService.ts
 
-/** 📌 뉴스 가져오기 API */
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+/** 뉴스 가져오기 API */
 export const fetchNewsByCompany = async (companyName: string) => {
   try {
     const encodedName = encodeURIComponent(companyName);
+
     const response = await fetch(
-      `http://127.0.0.1:8000/api/report/news?company_name=${encodedName}&sort_order=newest`
+      `${BASE_URL}/api/report/news?company_name=${encodedName}&sort_order=newest`
     );
+
     if (!response.ok) {
       throw new Error("뉴스 데이터를 가져오는데 실패했습니다.");
     }
+
     return await response.json();
   } catch (error) {
-    console.error(error);
+    console.error("[fetchNewsByCompany Error]", error);
     throw error;
   }
 };
 
-/** 📌 Summary(핵심요약) 가져오기 API */
+/** Summary(핵심요약) 가져오기 API */
 export const fetchSummaryByCompany = async (companyName: string) => {
   try {
     const encodedName = encodeURIComponent(companyName);
+
     const response = await fetch(
-      `http://127.0.0.1:8000/api/report/summary?company_name=${encodedName}`
+      `${BASE_URL}/api/report/summary?company_name=${encodedName}`
     );
 
     if (!response.ok) {
@@ -31,7 +37,7 @@ export const fetchSummaryByCompany = async (companyName: string) => {
 
     return await response.json();
   } catch (error) {
-    console.error(error);
+    console.error("[fetchSummaryByCompany Error]", error);
     throw error;
   }
 };

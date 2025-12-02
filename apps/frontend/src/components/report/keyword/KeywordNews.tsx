@@ -1,46 +1,51 @@
+import { Layers, FileWarning } from "lucide-react"; // 아이콘 추가
 import TopicCardList from "./TopicCardList";
 // import WordCloud from "./wordCloud";
-// import { sentimentWords } from "../../../public/data/newsData"; // 워드 클라우드 글자 데이터
+// import { sentimentWords } from "../../../public/data/newsData";
 
 export default function KeywordNews({ newsData }: any) {
-  // value가 큰 순서로 정렬
-  // const sortedWords = [...sentimentWords].sort((a, b) => b.value - a.value);
-
-  // // 나중에 뉴스 목록 띄우기로 변경
-  // const handleWordClick = (word: string) => {
-  //   alert(`"${word}" 단어를 클릭했어!`);
-  // };
-  if (!newsData) return <div>뉴스 데이터가 없습니다</div>;
+  // 데이터가 없을 때 예쁜 Empty State 보여주기
+  if (!newsData) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+        <FileWarning className="w-10 h-10 mb-2 opacity-50" />
+        <p className="text-sm">분석할 뉴스 데이터가 없습니다.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="mt-3 space-y-4 px-4   ">
-      {/* 워드클라우드 보류 */}
-      {/* <section className="bg-white rounded-2xl shadow p-4">
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col gap-1">
-            <div className="text-black">핵심 키워드</div>
-            <div className="text-gray-400 text-xs">
-              클릭하면 관련 뉴스를 확인할 수 있습니다
-            </div>
-          </div>
-          <div className=" bg-[#F9F5EE] flex flex-col justify-center items-center">
-            <WordCloud data={sentimentWords} onWordClick={handleWordClick} />
-          </div>
+    <div className="mt-4 px-4 pb-10 space-y-5">
+
+      {/* 워드클라우드 (보류 상태 - 주석 유지) */}
+      {/* <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Cloud className="w-5 h-5 text-gray-600" />
+          <h3 className="text-lg font-bold text-gray-700">핵심 키워드</h3>
         </div>
-      </section> */}
+        <div className="bg-[#F9F5EE] rounded-xl min-h-[200px] flex items-center justify-center">
+           <WordCloud data={sentimentWords} onWordClick={handleWordClick} />
+        </div>
+      </section> 
+      */}
 
       {/* 토픽별 분석 */}
-      <section className="bg-white rounded-2xl shadow p-4">
-        <div>
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1">
-              <div className="text-black">토픽별 분석</div>
-              <div className="text-gray-400 text-xs">
-                AI가 주제별로 분류한 뉴스 토픽들입니다
-              </div>
-            </div>
-            <TopicCardList newsData={newsData} />
+      <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+        {/* 헤더 영역 */}
+        <div className="mb-5">
+          <div className="flex items-center gap-2 mb-1">
+            {/* 아이콘: 토픽/레이어 의미의 Layers 사용 */}
+            <Layers className="w-5 h-5 text-gray-600" />
+            <h3 className="text-lg font-bold text-gray-800">토픽별 분석</h3>
           </div>
+          <p className="text-xs text-gray-400 pl-7">
+            AI가 주제별로 분류한 뉴스 토픽들을 확인해보세요.
+          </p>
+        </div>
+
+        {/* 컨텐츠 영역 */}
+        <div>
+          <TopicCardList newsData={newsData} />
         </div>
       </section>
     </div>

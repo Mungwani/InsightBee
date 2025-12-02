@@ -17,11 +17,43 @@ export default function MainLoading() {
     const rafRef = useRef<number | null>(null);
     const isNavigated = useRef(false);
 
-    // 로딩 + 데이터 병렬 호출
     useEffect(() => {
         if (!company) return;
 
-        /* API 미리 불러오기 */
+        // 1. 애니메이션 시작 (최대 90%까지만 천천히 증가)
+        // useEffect 내부
+
+        // 1. 애니메이션 시작
+        const startAnimation = () => {
+            const animate = () => {
+                setProgress((prev) => {
+                    // 90% 이상이면 거의 멈춤 (아주 미세하게만 증가)
+                    if (prev >= 90) {
+                        return prev + (99 - prev) * 0.001;
+                    }
+
+                    // [수정된 부분]
+                    // 속도 계산: 남은 거리의 1% (기존 5%에서 줄임)
+                    let increment = (90 - prev) * 0.01;
+
+                    // [핵심] 초반 급발진 방지: 한 프레임당 최대 0.2%까지만 오르도록 제한
+                    // 이렇게 하면 초반에도 0.2%씩 꾸준히 오르다가, 
+                    // 나중에 0.2보다 작아지면 자연스럽게 느려집니다.
+                    increment = Math.min(increment, 0.2);
+
+                    return prev + increment;
+                });
+
+                if (!isNavigated.current) {
+                    rafRef.current = requestAnimationFrame(animate);
+                }
+            };
+            rafRef.current = requestAnimationFrame(animate);
+        };
+
+        startAnimation();
+
+        // 2. API 호출
         async function loadAll() {
             try {
                 const [summary, news] = await Promise.all([
@@ -30,32 +62,29 @@ export default function MainLoading() {
                 ]);
 
                 if (!isNavigated.current) {
-                    navigate(`/report/${encodeURIComponent(company)}`, {
-                        replace: true,
-                        state: { summary, news },
-                    });
+                    // API 완료 시 애니메이션 중단하고 100%로 점프
+                    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+                    setProgress(100);
+
+                    // 사용자가 100% 찬 것을 인지할 수 있게 0.5초 딜레이 후 이동
+                    setTimeout(() => {
+                        if (!isNavigated.current) {
+                            navigate(`/report/${encodeURIComponent(company)}`, {
+                                replace: true,
+                                state: { summary, news },
+                            });
+                            isNavigated.current = true;
+                        }
+                    }, 500);
                 }
             } catch (e) {
                 console.error("로딩 실패:", e);
+                // 에러 처리 (필요시 알림 표시 후 메인으로 등)
+                cancel();
             }
         }
 
         loadAll();
-
-        /* 로딩 progress 애니메이션 */
-        const start = performance.now();
-        const duration = 8000;
-
-        const tick = (now: number) => {
-            const p = Math.min(1, (now - start) / duration);
-            setProgress(Math.floor(p * 100));
-
-            if (p < 1 && !isNavigated.current) {
-                rafRef.current = requestAnimationFrame(tick);
-            }
-        };
-
-        rafRef.current = requestAnimationFrame(tick);
 
         return () => {
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -98,10 +127,11 @@ export default function MainLoading() {
                 <div className="w-[80%] max-w-[320px] h-2 rounded-full bg-gray-200 overflow-hidden mb-1">
                     <div
                         className="h-full bg-[#FFA000] transition-[width] duration-200 ease-out"
-                        style={{ width: `${progress}%` }}
+                        // Math.floor로 소수점 제거하여 CSS에 적용
+                        style={{ width: `${Math.floor(progress)}%` }}
                     />
                 </div>
-                <div className="text-xs text-gray-500 mb-6">{progress}%</div>
+                <div className="text-xs text-gray-500 mb-6">{Math.floor(progress)}%</div>
 
                 <button onClick={cancel} className="mt-2 px-6 py-2 rounded-full text-white font-semibold shadow-md"
                     style={{ backgroundColor: "#4F200D" }}>

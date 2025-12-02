@@ -1,3 +1,4 @@
+import { AlertCircle, AlertTriangle, Check, Sparkles, TrendingUp, PieChart as ChartIcon } from "lucide-react";
 import DonutChart from "./DonutChart";
 
 interface SummaryData {
@@ -37,32 +38,58 @@ export default function Summary({ summaryData, loading }: SummaryProps) {
 
   return (
     <div className="mt-3 space-y-4 px-4">
-      <section className="bg-white rounded-2xl shadow p-4">
-        <h3 className="font-semibold mb-2 text-gray-700">
-          {summaryData.company_name} 핵심 포인트
-        </h3>
-
-        <div className="mb-3">
-          <p className="text-green-600 font-bold mb-1">긍정 포인트</p>
-          <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-            {summaryData.positive_points.map((p, i) => (
-              <li key={i}>{p}</li>
-            ))}
-          </ul>
+      <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+        {/* 메인 타이틀 */}
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles className="w-5 h-5 text-[#FFA000]" fill="#FFA000" />
+          <h3 className="text-lg font-bold text-gray-800">
+            {summaryData.company_name} 핵심 포인트
+          </h3>
         </div>
 
-        <div>
-          <p className="text-red-600 font-bold mb-1">리스크 요인</p>
-          <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-            {summaryData.risk_factors.map((r, i) => (
-              <li key={i}>{r}</li>
-            ))}
-          </ul>
+        <div className="flex flex-col gap-3">
+          {/* 긍정 포인트 박스 */}
+          <div className="bg-green-50 rounded-xl p-4 border border-green-100">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp className="w-4 h-4 text-green-600" />
+              <p className="text-green-700 font-bold text-m">성장 기회 & 강점</p>
+            </div>
+            <ul className="space-y-2">
+              {summaryData.positive_points.map((p, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                  {/* 아이콘이 텍스트 첫 줄 높이에 맞게 mt-0.5 또는 mt-1 설정 */}
+                  <Check className="w-3.5 h-3.5 text-green-600 mt-[3px] flex-shrink-0" strokeWidth={3} />
+                  <span className="leading-tight">{p}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* 리스크 요인 박스 */}
+          <div className="bg-red-50 rounded-xl p-4 border border-red-100">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertTriangle className="w-4 h-4 text-red-600" />
+              <p className="text-red-700 font-bold text-m">잠재적 리스크</p>
+            </div>
+            <ul className="space-y-2">
+              {summaryData.risk_factors.map((r, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                  <AlertCircle className="w-3.5 h-3.5 text-red-500 mt-[3px] flex-shrink-0" />
+                  <span className="leading-tight">{r}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 
       <section className="bg-white rounded-2xl shadow p-4">
-        <h3 className="font-semibold mb-3">뉴스 긍부정 비율</h3>
+        {/* 타이틀 영역 */}
+        <div className="flex items-center gap-2 mb-4">
+          {/* 아이콘 스타일링 */}
+          <ChartIcon className="w-5 h-5 text-blue-800" />
+          <h3 className="text-lg font-bold text-gray-700">뉴스 긍부정 비율</h3>
+        </div>
 
         <div className="flex justify-center">
           <DonutChart data={donutData} />
