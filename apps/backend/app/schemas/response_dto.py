@@ -33,6 +33,7 @@ class ReportSummaryResponse(BaseModel):
     리포트 상단 : 요약 정보 및 통계
     """
     company_name: str
+    total_article_count : int # 최근 3개월 기사 총 개수
     sentiment_ratio: SentimentRatio # 위에서 정의한 SentimentRatio 모델 재사용
     positive_points: List[str]      # 긍정 요약 문장
     risk_factors: List[str]         # 부정 요약 문장
@@ -71,4 +72,5 @@ class NewsDetailResponse(BaseModel):
     source: str
     published_at: Optional[datetime]
     key_summary: str           # 기사 핵심 내용 요약
+    ai_summary : Optional[str]
     original_link: str         # 원본 링크

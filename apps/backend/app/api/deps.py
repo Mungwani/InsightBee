@@ -8,17 +8,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # =========================================================
-# [환경변수 로드 및 검증]
-# 코드가 실행될 때 설정값이 없으면 에러를 띄워서 실수를 방지합니다.
+# [환경 변수 로드] 뷰 테이블 하나로 통합.
 # =========================================================
 PROJECT_ID = os.getenv("GCP_PROJECT_ID")
 DATASET_ID = os.getenv("BIGQUERY_DATASET_ID")
-RAW_TABLE_NAME = os.getenv("TABLE_NEWS_RAW")
-LLM_TABLE_NAME = os.getenv("TABLE_NEWS_LLM")
+COMBINED_TABLE_NAME = os.getenv("TABLE_NEWS_COMBINED") # 뷰
 
 # 필수 설정값 체크 (배포 시 실수 방지용)
-if not all([PROJECT_ID, DATASET_ID, RAW_TABLE_NAME, LLM_TABLE_NAME]):
-    raise ValueError("❌ 필수 환경변수(.env)가 설정되지 않았습니다. GCP_PROJECT_ID 등을 확인하세요.")
+if not all([PROJECT_ID, DATASET_ID, COMBINED_TABLE_NAME]):
+    raise ValueError("필수 환경변수(.env)가 설정되지 않았습니다. GCP_PROJECT_ID 등을 확인하세요.")
 
 def get_bq_client() -> Generator[bigquery.Client, None, None]:
     """
