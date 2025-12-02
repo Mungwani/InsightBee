@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/pages/MainLoading.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -17,11 +18,30 @@ export default function MainLoading() {
     const rafRef = useRef<number | null>(null);
     const isNavigated = useRef(false);
 
-    // 로딩 + 데이터 병렬 호출
     useEffect(() => {
         if (!company) return;
 
-        /* API 미리 불러오기 */
+        const startAnimation = () => {
+            const animate = () => {
+                setProgress((prev) => {
+                    if (prev >= 90) {
+                        return prev + (99 - prev) * 0.001;
+                    }
+                    let increment = (90 - prev) * 0.01;
+                    increment = Math.min(increment, 0.2);
+
+                    return prev + increment;
+                });
+
+                if (!isNavigated.current) {
+                    rafRef.current = requestAnimationFrame(animate);
+                }
+            };
+            rafRef.current = requestAnimationFrame(animate);
+        };
+
+        startAnimation();
+        // 2. API 호출
         async function loadAll() {
             try {
                 const [summary, news] = await Promise.all([
@@ -29,33 +49,47 @@ export default function MainLoading() {
                     fetchNewsByCompany(company),
                 ]);
 
-                if (!isNavigated.current) {
-                    navigate(`/report/${encodeURIComponent(company)}`, {
-                        replace: true,
-                        state: { summary, news },
-                    });
+                // 1) API 호출은 성공했으나(200 OK), 내용이 비어있는 경우
+                const isSummaryEmpty = !summary || (typeof summary === 'object' && Object.keys(summary).length === 0);
+                const isNewsEmpty = !news || (Array.isArray(news) && news.length === 0);
+
+                if (isSummaryEmpty && isNewsEmpty) {
+                    throw { status: 404 }; // 강제로 404 상황으로 보냄 (catch 블록에서 처리)
                 }
-            } catch (e) {
+
+                if (!isNavigated.current) {
+                    // 성공 로직 (애니메이션 완료 및 이동)
+                    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+                    setProgress(100);
+
+                    setTimeout(() => {
+                        if (!isNavigated.current) {
+                            navigate(`/report/${encodeURIComponent(company)}`, {
+                                replace: true,
+                                state: { summary, news },
+                            });
+                            isNavigated.current = true;
+                        }
+                    }, 500);
+                }
+
+            } catch (e: any) {
                 console.error("로딩 실패:", e);
+
+                if (!isNavigated.current) {
+                    if (e.status === 404 || e.response?.status === 404) {
+                        alert(`'${company}'에 대한 데이터가 존재하지 않습니다.\n기업명을 다시 확인해 주세요.`);
+                    }
+                    else {
+                        alert(`'${company}'에 대한 데이터가 존재하지 않습니다.\n오류가 발생했습니다.`);
+                    }
+
+                    cancel();
+                }
             }
         }
 
         loadAll();
-
-        /* 로딩 progress 애니메이션 */
-        const start = performance.now();
-        const duration = 8000;
-
-        const tick = (now: number) => {
-            const p = Math.min(1, (now - start) / duration);
-            setProgress(Math.floor(p * 100));
-
-            if (p < 1 && !isNavigated.current) {
-                rafRef.current = requestAnimationFrame(tick);
-            }
-        };
-
-        rafRef.current = requestAnimationFrame(tick);
 
         return () => {
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -98,10 +132,10 @@ export default function MainLoading() {
                 <div className="w-[80%] max-w-[320px] h-2 rounded-full bg-gray-200 overflow-hidden mb-1">
                     <div
                         className="h-full bg-[#FFA000] transition-[width] duration-200 ease-out"
-                        style={{ width: `${progress}%` }}
+                        style={{ width: `${Math.floor(progress)}%` }}
                     />
                 </div>
-                <div className="text-xs text-gray-500 mb-6">{progress}%</div>
+                <div className="text-xs text-gray-500 mb-6">{Math.floor(progress)}%</div>
 
                 <button onClick={cancel} className="mt-2 px-6 py-2 rounded-full text-white font-semibold shadow-md"
                     style={{ backgroundColor: "#4F200D" }}>
