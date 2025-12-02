@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from google.cloud import bigquery
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 from urllib.parse import urlparse
 
 from app.schemas import response_dto
@@ -24,6 +24,26 @@ def get_report_summary(
     """
     raw_id = f"{PROJECT_ID}.{DATASET_ID}.{RAW_TABLE_NAME}"
     llm_id = f"{PROJECT_ID}.{DATASET_ID}.{LLM_TABLE_NAME}"
+
+    # 해당 기업 최근 3개월 기사 총 개수 구하기
+    three_months_ago = datetime.now() - timedelta(days=90)
+    
+    count_sql = f"""
+        SELECT COUNT(*) as total_count
+        FROM `{raw_id}`
+        WHERE search_keyword = @company_name
+        AND published_at >= @start_date
+    """
+    
+    count_job_config = bigquery.QueryJobConfig(
+        query_parameters=[
+            bigquery.ScalarQueryParameter("company_name", "STRING", company_name),
+            bigquery.ScalarQueryParameter("start_date", "DATETIME", three_months_ago) # DB 타입에 따라 TIMESTAMP로 변경 필요할 수 있음
+        ]
+    )
+    
+    count_result = list(client.query(count_sql, job_config=count_job_config).result())
+    real_total_count = count_result[0].get("total_count", 0) if count_result else 0
     
     # article_id기준으로 합쳐서 필요한 정보만 가져옴.
     sql = f"""
