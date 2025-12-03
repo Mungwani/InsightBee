@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.endpoints import companies, reports, news
+from app.api.endpoints import companies, reports, news,analytics
 
 # 전체 API 라우터 생성
 api_router = APIRouter()
@@ -9,3 +9,4 @@ api_router = APIRouter()
 api_router.include_router(companies.router, tags=["Companies"])
 api_router.include_router(reports.router, tags=["Report"])
 api_router.include_router(news.router, tags=["News"])
+api_router.include_router(analytics.router,prefix="/analytics", tags=["Analytics"])

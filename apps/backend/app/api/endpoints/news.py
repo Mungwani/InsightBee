@@ -26,7 +26,8 @@ def get_news_detail(
             published_at, 
             url,
             summary,
-            career_insight
+            career_insight,
+            sentiment
         FROM `{table_id}`
         WHERE article_id = @article_id
         LIMIT 1
@@ -57,7 +58,7 @@ def get_news_detail(
     final_summary = "요약 없음"
     
     if article.career_insight:
-        final_summary = f"[커리어 인사이트]\n{article.career_insight}"
+        final_summary = article.career_insight
     elif article.summary:
         # 요약이 너무 길 경우를 대비해 300자로 자름
         final_summary = article.summary[:300] + ("..." if len(article.summary) > 300 else "")
@@ -69,6 +70,7 @@ def get_news_detail(
         title=article.title,
         source=source_name,
         published_at=article.published_at,
+        sentiment=article.sentiment if article.sentiment else "중립",
         key_summary=final_summary,
         ai_summary=article.summary,
         original_link=article.url
