@@ -13,9 +13,10 @@ load_dotenv()
 PROJECT_ID = os.getenv("GCP_PROJECT_ID")
 DATASET_ID = os.getenv("BIGQUERY_DATASET_ID")
 COMBINED_TABLE_NAME = os.getenv("TABLE_NEWS_COMBINED") # 뷰
+REPORT_TABLE_NAME = os.getenv("TABLE_WEEKLY_REPORT")
 
 # 필수 설정값 체크 (배포 시 실수 방지용)
-if not all([PROJECT_ID, DATASET_ID, COMBINED_TABLE_NAME]):
+if not all([PROJECT_ID, DATASET_ID, COMBINED_TABLE_NAME, REPORT_TABLE_NAME]):
     raise ValueError("필수 환경변수(.env)가 설정되지 않았습니다. GCP_PROJECT_ID 등을 확인하세요.")
 
 def get_bq_client() -> Generator[bigquery.Client, None, None]:

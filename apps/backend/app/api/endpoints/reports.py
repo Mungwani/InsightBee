@@ -169,6 +169,7 @@ def get_report_news_list(
             title=row.title,
             one_line_summary=row.one_sentence_summary if row.one_sentence_summary else row.title,
             source=source_name,
+            sentiment=row.sentiment if row.sentiment else "중립",
             # 날짜 없으면 현재 시간으로 채움 (Swagger/프론트 오류 방지)
             published_at=row.published_at if row.published_at else datetime.now()
         ))
