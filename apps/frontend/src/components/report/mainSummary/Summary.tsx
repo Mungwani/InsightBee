@@ -1,5 +1,6 @@
 import { AlertCircle, AlertTriangle, Check, Sparkles, TrendingUp, PieChart as ChartIcon } from "lucide-react";
 import DonutChart from "./DonutChart";
+import KeywordList from "./KeywordList";
 
 interface SummaryData {
   company_name: string;
@@ -10,6 +11,7 @@ interface SummaryData {
   };
   positive_points: string[];
   risk_factors: string[];
+  keywords: { keyword: string }[];
 }
 
 interface SummaryProps {
@@ -44,7 +46,9 @@ export default function Summary({ summaryData, loading }: SummaryProps) {
           <h3 className="text-lg font-bold text-gray-800">
             {summaryData.company_name} 핵심 포인트
           </h3>
+          <span className="ml-5 text-xs text-gray-400">최근 1주일 기반</span>
         </div>
+
 
         <div className="flex flex-col gap-3">
           <div className="bg-green-50 rounded-xl p-4 border border-green-100">
@@ -89,6 +93,9 @@ export default function Summary({ summaryData, loading }: SummaryProps) {
           <DonutChart data={donutData} />
         </div>
       </section>
+
+      <KeywordList keywords={summaryData.keywords} />
+
     </div>
   );
 }
