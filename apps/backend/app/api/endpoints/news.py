@@ -4,10 +4,7 @@ from datetime import datetime
 from urllib.parse import urlparse
 
 from app.schemas.response_dto import NewsDetailResponse
-from app.api.deps import (
-    get_bq_client, PROJECT_ID, DATASET_ID, 
-    RAW_TABLE_NAME, LLM_TABLE_NAME # 추가됨
-)
+from app.api.deps import get_bq_client, PROJECT_ID, DATASET_ID, COMBINED_TABLE_NAME
 
 router = APIRouter()
 
@@ -18,25 +15,21 @@ def get_news_detail(
     article_id: int,
     client: bigquery.Client = Depends(get_bq_client)
 ):  
-    """
-    뉴스 상세 조회 API : 기사 ID로 본문과 분석 결과(인사이트, 요약) 모두 조회.
-    """
-    raw_id = f"{PROJECT_ID}.{DATASET_ID}.{RAW_TABLE_NAME}"
-    llm_id = f"{PROJECT_ID}.{DATASET_ID}.{LLM_TABLE_NAME}"
+    table_id = f"{PROJECT_ID}.{DATASET_ID}.{COMBINED_TABLE_NAME}"
     
-    # [JOIN] 상세 정보 조회
+    # [수정됨] JOIN 제거. career_insight는 없어서 뺐습니다.
     sql = f"""
         SELECT 
-            r.article_id, 
-            r.title, 
-            r.content, 
-            r.published_at, 
-            r.url,
-            l.summary,
-            l.career_insight
-        FROM `{raw_id}` as r
-        JOIN `{llm_id}` as l ON r.article_id = l.article_id
-        WHERE r.article_id = @article_id
+            article_id, 
+            title, 
+            content, 
+            published_at, 
+            url,
+            summary,
+            career_insight,
+            sentiment
+        FROM `{table_id}`
+        WHERE article_id = @article_id
         LIMIT 1
     """
     
@@ -61,12 +54,14 @@ def get_news_detail(
         except:
             pass
     
-    # 요약 우선 순위 : 테이블 요약 -> 커리어 인사이트 -> 본문 앞부분
+    # 요약 우선 순위 : career_insight 컬럼 -> summary 컬럼 -> 본문 300자(혹시 모를)
     final_summary = "요약 없음"
-    if article.summary:
-        final_summary = article.summary
-    elif article.career_insight:
-        final_summary = f"[커리어 인사이트]\n{article.career_insight}"
+    
+    if article.career_insight:
+        final_summary = article.career_insight
+    elif article.summary:
+        # 요약이 너무 길 경우를 대비해 300자로 자름
+        final_summary = article.summary[:300] + ("..." if len(article.summary) > 300 else "")
     elif article.content:
         final_summary = article.content[:300] + "..."
 
@@ -75,6 +70,8 @@ def get_news_detail(
         title=article.title,
         source=source_name,
         published_at=article.published_at,
+        sentiment=article.sentiment if article.sentiment else "중립",
         key_summary=final_summary,
+        ai_summary=article.summary,
         original_link=article.url
     )

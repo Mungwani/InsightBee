@@ -4,6 +4,8 @@ import { useParams } from "react-router-dom";
 import ReportHeader from "../components/report/ReportHeader";
 import { Calendar, ExternalLink, Newspaper } from "lucide-react";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://insightbee-backend-950949202751.europe-west1.run.app';
+
 /** API 응답 타입 */
 interface NewsDetail {
     article_id: number;
@@ -29,7 +31,7 @@ export default function NewsDetailPage() {
                 setLoading(true);
                 setError("");
 
-                const res = await fetch(`/api/news/${id}`);
+                const res = await fetch(`${BASE_URL}/api/news/${id}`);
                 if (!res.ok) throw new Error("뉴스 불러오기 실패");
 
                 const json = await res.json();

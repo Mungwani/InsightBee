@@ -1,6 +1,6 @@
 // src/service/newsService.ts
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://insightbee-backend-950949202751.europe-west1.run.app';
 
 /** 뉴스 가져오기 API */
 export const fetchNewsByCompany = async (companyName: string) => {
