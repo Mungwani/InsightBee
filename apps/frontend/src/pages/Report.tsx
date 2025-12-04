@@ -54,19 +54,22 @@ export default function ReportPage() {
           <div className="border-b border-gray-300 w-[95%] h-2 mx-auto"></div>
 
           {/* 하단 정보 탭 */}
-          <div className="flex justify-around w-full">
+          <div className="flex justify-center w-full">
 
             <div className="flex gap-2 items-center justify-center">
               <BriefcaseBusiness className="w-4 h-4 text-gray-400" />
               <p className="text-[15px] text-gray-400">업종 정보</p>
             </div>
 
-            <div className="w-[1px] h-4 bg-gray-200 my-auto"></div>
+            <div className="w-[1px] ml-4 mr-4 h-4 bg-gray-200 my-auto"></div>
 
             <div className="flex gap-2 items-center justify-center">
               <Newspaper className="w-4 h-4 text-gray-400" />
-              <p className="text-[15px] text-gray-400">최근 기사 분석 정보</p>
+              <p className="text-[15px] text-gray-400">
+                최근 3개월 {summaryData.total_article_count}건 기반
+              </p>
             </div>
+
           </div>
         </section>
 

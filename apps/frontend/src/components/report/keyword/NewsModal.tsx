@@ -40,6 +40,7 @@ export default function NewsModal({ newsData }: any) {
             <option value="전체">전체</option>
             <option value="긍정">긍정</option>
             <option value="부정">부정</option>
+            <option value="중립">중립</option>
           </select>
           <div className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none z-10">
             <ChevronDown className="w-3 h-3 text-gray-400" />

@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import ReportHeader from "../components/report/ReportHeader";
-import { Calendar, ExternalLink, Newspaper } from "lucide-react";
+import { Calendar, ExternalLink, Newspaper, Quote } from "lucide-react"; // Quote 추가
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://insightbee-backend-950949202751.europe-west1.run.app';
 
@@ -13,6 +13,7 @@ interface NewsDetail {
     source: string;
     published_at: string;
     key_summary: string;
+    ai_summary: string;
     original_link: string;
 }
 
@@ -36,7 +37,6 @@ export default function NewsDetailPage() {
 
                 const json = await res.json();
 
-                /** 👉 응답 형태 안전하게 처리 */
                 const article =
                     json?.data ??
                     json?.result ??
@@ -59,14 +59,11 @@ export default function NewsDetailPage() {
         fetchDetail();
     }, [id]);
 
-    /** 스크롤 맨 위로 이동 */
     useEffect(() => {
         containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }, [item]);
 
-    /** -------------------------
-     *      로딩 화면 (귀여운 꿀벌 로딩)
-     -------------------------- */
+
     if (loading) {
         return (
             <div className="min-h-screen bg-[#F9F5EE] flex flex-col">
@@ -74,7 +71,6 @@ export default function NewsDetailPage() {
 
                 <main className="flex flex-col items-center justify-center flex-1 text-gray-500 relative overflow-hidden">
 
-                    {/* 🐝 돌아다니는 꿀벌 */}
                     <img
                         src="/img/newsBee.svg"
                         alt="bee"
@@ -89,10 +85,6 @@ export default function NewsDetailPage() {
         );
     }
 
-
-    /** -------------------------
-     *      에러 화면
-     -------------------------- */
     if (error) {
         return (
             <div className="min-h-screen bg-[#F9F5EE] flex flex-col">
@@ -105,9 +97,6 @@ export default function NewsDetailPage() {
         );
     }
 
-    /** -------------------------
-     *      데이터 없음
-     -------------------------- */
     if (!item) {
         return (
             <div className="min-h-screen bg-[#F9F5EE] flex flex-col">
@@ -120,9 +109,6 @@ export default function NewsDetailPage() {
         );
     }
 
-    /** -------------------------
-     *      정상 화면
-     -------------------------- */
     return (
         <div className="min-h-screen bg-[#F9F5EE] flex flex-col">
             <ReportHeader title="기사 원문" />
@@ -133,13 +119,12 @@ export default function NewsDetailPage() {
             >
                 <section className="max-w-3xl mx-auto bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 overflow-hidden">
 
-                    {/* 1) 헤더 */}
                     <div className="p-6 border-b border-stone-100 bg-white">
                         <span className="inline-block px-3 py-1 mb-4 text-xs font-bold tracking-wider text-[#4F200D] bg-[#4F200D]/10 rounded-full">
                             NEWS ARTICLE
                         </span>
 
-                        <h1 className="text-2xl font-bold text-gray-900 mb-6 leading-snug">
+                        <h1 className="text-xl font-bold text-gray-900 mb-6 leading-snug">
                             {item.title}
                         </h1>
 
@@ -156,36 +141,60 @@ export default function NewsDetailPage() {
                         </div>
                     </div>
 
-                    {/* 2) Key Summary */}
                     <div className="p-6 bg-white">
-                        {item.key_summary && (
+                        {item.ai_summary && (
                             <div className="relative">
                                 <div className="relative bg-[#F9F7F3] rounded-2xl p-6 md:p-8 border border-[#EBE5D5]">
                                     <h3 className="text-[#4F200D] font-bold mb-4 text-sm tracking-wide uppercase flex items-center gap-2">
                                         <span className="w-1.5 h-1.5 rounded-full bg-[#4F200D]" />
-                                        Key Summary
+                                        뉴스 요약
                                     </h3>
-                                    <p className="text-gray-800 leading-relaxed whitespace-pre-line text-base md:text-lg font-medium">
-                                        {item.key_summary}
+                                    <p className="text-gray-800 leading-relaxed whitespace-pre-line text-base md:text-[16px] font-medium">
+                                        {item.ai_summary}
                                     </p>
                                 </div>
                             </div>
                         )}
 
-                        {/* 3) 원문 링크 */}
-                        <div className="mt-10 flex justify-center">
+                        <div className="mt-4 flex justify-center">
                             <a
                                 href={item.original_link}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="group inline-flex items-center justify-center gap-2 px-8 py-4 w-full sm:w-auto
-                                bg-[#4F200D] text-white font-bold rounded-xl shadow-md 
-                                transition-all duration-300 hover:bg-[#3E190A] hover:shadow-lg hover:-translate-y-0.5"
-                            >
-                                원문 전체 읽기
+                                className="group inline-flex items-center justify-center gap-2 px-5 py-2.5 w-auto bg-[#4F200D] text-white font-semibold text-sm rounded-2xl shadow-md 
+                                             transition-all duration-300 hover:bg-[#3E190A] hover:shadow-lg hover:-translate-y-0.5">
+                                원문 읽기
                                 <ExternalLink className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                             </a>
                         </div>
+
+
+                        {item.key_summary && (
+                            <div className="mt-8">
+                                <div className="relative bg-gradient-to-br from-[#FFFBEB] to-[#FEF3C7] rounded-2xl p-6 md:p-8 border border-[#FDE68A]/60 shadow-[0_4px_20px_rgb(0,0,0,0.03)] overflow-hidden">
+                                    <Quote className="absolute top-4 right-6 w-16 h-16 text-[#F59E0B]/10 rotate-12 pointer-events-none" />
+
+                                    <div className="relative z-10">
+                                        <div className="flex items-center gap-4 mb-5">
+                                            <img
+                                                src="/img/newsBee.svg"
+                                                alt="InsightBee"
+                                                className="w-10 h-10"
+                                            />
+                                            <div>
+                                                <h3 className="text-lg md:text-xl font-extrabold text-[#4F200D] tracking-tight">
+                                                    채용 핵심 포인트
+                                                </h3>
+                                            </div>
+                                        </div>
+                                        <p className="text-[#78350F] leading-relaxed whitespace-pre-line text-[16px] md:text-[17px] font-medium">
+                                            {item.key_summary}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                     </div>
                 </section>
             </main>

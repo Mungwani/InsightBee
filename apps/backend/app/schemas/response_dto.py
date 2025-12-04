@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, date
 
 # ==========================================
 # [공통 사용 모델]
@@ -46,6 +46,7 @@ class NewsSimpleItem(BaseModel):
     title: str
     one_line_summary: str      
     source: str                # 언론사 이름
+    sentiment: str             # 긍/부정 추가
     published_at: Optional[datetime]     # 발행일(날짜 없을 경우 -> null)
 
 class KeywordGroup(BaseModel):
@@ -71,6 +72,25 @@ class NewsDetailResponse(BaseModel):
     title: str
     source: str
     published_at: Optional[datetime]
+    sentiment: str
+    
     key_summary: str           # 기사 핵심 내용 요약
     ai_summary : Optional[str]
     original_link: str         # 원본 링크
+
+# ===============핵심 포인트 & 키워드 추가 
+class CorePointItem(BaseModel):
+    """핵심 포인트( 날짜 + 요약내용)"""
+    date : date # 주간 리포트 기준일(rpeort_and_date
+    summary : str
+class CoreKeywordItem(BaseModel):
+    """핵심 키워드 (단어 + 빈도)"""
+    keyword : str
+class CorePointsResponse(BaseModel):
+    """핵심 포인트 응답 (긍정 + 리스크)"""
+    company_name: str
+    points: List[CorePointItem]
+class CoreKeywordsResponse(BaseModel):
+    """핵심 키워드 응답"""
+    company_name: str
+    keywords: List[CoreKeywordItem]
