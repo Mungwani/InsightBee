@@ -6,10 +6,12 @@ import { ChevronLeft, ChevronRight, SearchX } from "lucide-react";
 export default function NewsCardList({ newsData, filter, sortOption }: any) {
   const [page, setPage] = useState(1);
   const itemsPerPage = 3;
-
+  console.log("newdata", newsData);
   const filteredData = useMemo(() => {
     if (filter === "전체") return newsData;
-    return newsData.filter((item: any) => item.sentiment === filter);
+    return newsData.filter(
+      (item: any) => item.sentiment.slice(0, 2) === filter
+    );
   }, [newsData, filter]);
 
   const sortedData = useMemo(() => {
@@ -38,8 +40,12 @@ export default function NewsCardList({ newsData, filter, sortOption }: any) {
         <div className="w-16 h-16 bg-[#FFF3E0] rounded-full flex items-center justify-center mb-4">
           <SearchX className="w-8 h-8 text-[#FFA000]" />
         </div>
-        <p className="text-gray-500 font-medium">해당 조건의 뉴스가 없습니다.</p>
-        <p className="text-xs text-gray-400 mt-1">필터를 변경하여 다시 검색해보세요.</p>
+        <p className="text-gray-500 font-medium">
+          해당 조건의 뉴스가 없습니다.
+        </p>
+        <p className="text-xs text-gray-400 mt-1">
+          필터를 변경하여 다시 검색해보세요.
+        </p>
       </div>
     );
   }
@@ -55,6 +61,7 @@ export default function NewsCardList({ newsData, filter, sortOption }: any) {
             one_line_summary={item.one_line_summary}
             source={item.source}
             published_at={item.published_at}
+            sentiment={item.sentiment}
           />
         ))}
       </div>
