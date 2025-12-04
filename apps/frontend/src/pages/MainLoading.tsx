@@ -7,7 +7,7 @@ import honeyBg from "../assets/honeyBgImg.svg";
 import beeLeft from "../assets/beeLeft.svg";
 import beeRight from "../assets/beeRight.svg";
 import flower from "../assets/flower.svg";
-import { fetchNewsByCompany, fetchSummaryByCompany } from "../services/report/getReport";
+import { fetchNewsByCompany, fetchSummaryByCompany, fetchKeywordsByCompany } from "../services/report/getReport";
 
 export default function MainLoading() {
     const navigate = useNavigate();
@@ -19,17 +19,17 @@ export default function MainLoading() {
     const isNavigated = useRef(false);
 
     useEffect(() => {
-        if (!company) return;
+        if (!company) {
+            console.log("❗ 회사명 없음. API 호출 중단");
+            return;
+        }
 
         const startAnimation = () => {
             const animate = () => {
-                setProgress((prev) => {
-                    if (prev >= 90) {
-                        return prev + (99 - prev) * 0.001;
-                    }
+                setProgress(prev => {
+                    if (prev >= 90) return prev + (99 - prev) * 0.001; // 90%부터는 아주 천천히
                     let increment = (90 - prev) * 0.01;
                     increment = Math.min(increment, 0.2);
-
                     return prev + increment;
                 });
 
@@ -41,49 +41,55 @@ export default function MainLoading() {
         };
 
         startAnimation();
-        // 2. API 호출
+
         async function loadAll() {
             try {
-                const [summary, news] = await Promise.all([
+                const timerPromise = new Promise((resolve) => setTimeout(resolve, 3000));
+
+                const apiPromise = Promise.all([
                     fetchSummaryByCompany(company),
                     fetchNewsByCompany(company),
+                    fetchKeywordsByCompany(company),
                 ]);
 
-                // 1) API 호출은 성공했으나(200 OK), 내용이 비어있는 경우
-                const isSummaryEmpty = !summary || (typeof summary === 'object' && Object.keys(summary).length === 0);
+                const [, apiResults] = await Promise.all([timerPromise, apiPromise]);
+                const [summary, news, keywords] = apiResults;
+
+                const isSummaryEmpty = !summary || (typeof summary === "object" && Object.keys(summary).length === 0);
                 const isNewsEmpty = !news || (Array.isArray(news) && news.length === 0);
 
                 if (isSummaryEmpty && isNewsEmpty) {
-                    throw { status: 404 }; // 강제로 404 상황으로 보냄 (catch 블록에서 처리)
+                    console.log("❗ Summary & News 모두 빈 값. 404 처리");
+                    throw { status: 404 };
                 }
 
                 if (!isNavigated.current) {
-                    // 성공 로직 (애니메이션 완료 및 이동)
+
                     if (rafRef.current) cancelAnimationFrame(rafRef.current);
                     setProgress(100);
 
                     setTimeout(() => {
                         if (!isNavigated.current) {
+                            isNavigated.current = true;
+
                             navigate(`/report/${encodeURIComponent(company)}`, {
                                 replace: true,
-                                state: { summary, news },
+                                state: { summary, news, keywords },
                             });
-                            isNavigated.current = true;
                         }
                     }, 500);
                 }
 
             } catch (e: any) {
-                console.error("로딩 실패:", e);
+                console.error("❌ MainLoading 오류 발생:", e);
 
                 if (!isNavigated.current) {
+                    // 에러 메시지 출력
                     if (e.status === 404 || e.response?.status === 404) {
                         alert(`'${company}'에 대한 데이터가 존재하지 않습니다.\n기업명을 다시 확인해 주세요.`);
+                    } else {
+                        alert(`'${company}' 데이터를 불러오는 중 오류가 발생했습니다.`);
                     }
-                    else {
-                        alert(`'${company}'에 대한 데이터가 존재하지 않습니다.\n오류가 발생했습니다.`);
-                    }
-
                     cancel();
                 }
             }
@@ -92,11 +98,14 @@ export default function MainLoading() {
         loadAll();
 
         return () => {
+            console.log("🔄 MainLoading cleanup 실행");
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
         };
+
     }, [navigate, company]);
 
     const cancel = () => {
+        console.log("🛑 취소하기 실행 — 메인으로 이동");
         isNavigated.current = true;
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
         navigate("/main", { replace: true });

@@ -9,6 +9,8 @@ import ReportPage from "./pages/Report";
 import NewsDetailPage from "./pages/NewsDetail";
 import MainLoading from "./pages/MainLoading";
 
+console.log("🔥 App.tsx 렌더링됨");
+
 function App() {
   return (
     <div className="overflow-x-hidden flex items-center justify-center w-screen h-100% bg-[#FFF7D7]">
