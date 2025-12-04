@@ -17,6 +17,7 @@ export default function MainLoading() {
     const [progress, setProgress] = useState(0);
     const rafRef = useRef<number | null>(null);
     const isNavigated = useRef(false);
+    // const isApiCalled = useRef(false); // API 중복 호출 방지 (useRef를 사용하여 StrictMode에서만 사용)
 
     useEffect(() => {
         if (!company) {
@@ -24,10 +25,14 @@ export default function MainLoading() {
             return;
         }
 
+        // API 중복 호출 방지 로직 (StrictMode 대응)
+        // if (isApiCalled.current) return;
+        // isApiCalled.current = true;
+
         const startAnimation = () => {
             const animate = () => {
                 setProgress(prev => {
-                    if (prev >= 90) return prev + (99 - prev) * 0.001; // 90%부터는 아주 천천히
+                    if (prev >= 90) return prev + (99 - prev) * 0.001;
                     let increment = (90 - prev) * 0.01;
                     increment = Math.min(increment, 0.2);
                     return prev + increment;
@@ -42,16 +47,21 @@ export default function MainLoading() {
 
         startAnimation();
 
+        // API 호출 및 최소 로딩 시간(3초) 확보 로직
         async function loadAll() {
             try {
+                // [1] 최소 3초 대기 Promise
                 const timerPromise = new Promise((resolve) => setTimeout(resolve, 3000));
 
+                // [2] 실제 API 호출 Promise
                 const apiPromise = Promise.all([
                     fetchSummaryByCompany(company),
                     fetchNewsByCompany(company),
                     fetchKeywordsByCompany(company),
                 ]);
 
+                // [3] 타이머와 API 호출 중 늦게 끝나는 것을 기다림 (최소 3초 로딩 보장)
+                //      (쉼표(,)는 타이머 결과(void)를 무시하는 destructuring 문법)
                 const [, apiResults] = await Promise.all([timerPromise, apiPromise]);
                 const [summary, news, keywords] = apiResults;
 
@@ -66,12 +76,13 @@ export default function MainLoading() {
                 if (!isNavigated.current) {
 
                     if (rafRef.current) cancelAnimationFrame(rafRef.current);
-                    setProgress(100);
+                    setProgress(100); // 로딩바 완료
 
                     setTimeout(() => {
                         if (!isNavigated.current) {
                             isNavigated.current = true;
 
+                            // 데이터와 함께 Report 페이지로 이동 (이중 호출 방지)
                             navigate(`/report/${encodeURIComponent(company)}`, {
                                 replace: true,
                                 state: { summary, news, keywords },
