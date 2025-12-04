@@ -7,6 +7,7 @@ interface NewsCardProps {
   one_line_summary: string;
   source: string;
   published_at: string;
+  sentiment: string;
 }
 
 export default function NewsCard({
@@ -15,6 +16,7 @@ export default function NewsCard({
   one_line_summary,
   source,
   published_at,
+  sentiment,
 }: NewsCardProps) {
   const navigate = useNavigate();
 
@@ -26,10 +28,29 @@ export default function NewsCard({
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
-      return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+      return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(
+        2,
+        "0"
+      )}.${String(date.getDate()).padStart(2, "0")}`;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return dateString; // 에러나면 원래 문자열 반환
+    }
+  };
+
+  // 감정 뱃지 배경
+  const getSentimentColor = (sentiment: string) => {
+    const label = sentiment.slice(0, 2);
+
+    switch (label) {
+      case "긍정":
+        return "bg-green-100 text-green-700";
+      case "부정":
+        return "bg-red-100 text-red-700";
+      case "중립":
+        return "bg-gray-100 text-gray-600";
+      default:
+        return "bg-gray-50 text-gray-400";
     }
   };
 
@@ -43,6 +64,12 @@ export default function NewsCard({
         <h4 className="text-[16px] font-bold text-gray-800 leading-snug group-hover:text-[#4F200D] transition-colors">
           {title}
         </h4>
+        <div
+          className={`whitespace-nowrap px-2 py-1 rounded-full text-xs font-semibold
+    ${getSentimentColor(sentiment)}`}
+        >
+          {sentiment.slice(0, 2)}
+        </div>
       </div>
 
       {/* 중간: 요약 */}
@@ -66,9 +93,7 @@ export default function NewsCard({
         </div>
 
         {/* '기사보기' 버튼 */}
-        <button
-          className="flex items-center gap-1 pl-3 pr-2 py-1.5 rounded-lg text-xs font-semibold text-gray-600 bg-gray-100 group-hover:bg-[#4F200D] group-hover:text-white transition-colors duration-200"
-        >
+        <button className="flex items-center gap-1 pl-3 pr-2 py-1.5 rounded-lg text-xs font-semibold text-gray-600 bg-gray-100 group-hover:bg-[#4F200D] group-hover:text-white transition-colors duration-200">
           기사보기
           <ChevronRight className="w-3 h-3" />
         </button>
