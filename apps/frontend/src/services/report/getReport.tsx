@@ -1,8 +1,6 @@
-// src/service/newsService.ts
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://insightbee-950949202751.europe-west1.run.app';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://insightbee-backend-950949202751.europe-west1.run.app';
-
-/** 뉴스 가져오기 API */
+/* 뉴스 가져오기 API */
 export const fetchNewsByCompany = async (companyName: string) => {
   try {
     const encodedName = encodeURIComponent(companyName);
@@ -22,7 +20,7 @@ export const fetchNewsByCompany = async (companyName: string) => {
   }
 };
 
-/** Summary(핵심요약) 가져오기 API */
+/* Summary(핵심요약) 가져오기 API */
 export const fetchSummaryByCompany = async (companyName: string) => {
   try {
     const encodedName = encodeURIComponent(companyName);
@@ -38,6 +36,31 @@ export const fetchSummaryByCompany = async (companyName: string) => {
     return await response.json();
   } catch (error) {
     console.error("[fetchSummaryByCompany Error]", error);
+    throw error;
+  }
+};
+
+export const fetchKeywordsByCompany = async (companyName: string) => {
+  try {
+    const encodedName = encodeURIComponent(companyName);
+
+    // [디버깅용 로그 추가]
+    console.log("1. 키워드 함수 진입:", companyName);
+    console.log("2. 요청할 URL:", `${BASE_URL}/api/analytics/keywords?company_name=${encodedName}`);
+
+    const response = await fetch(
+      `${BASE_URL}/api/analytics/keywords?company_name=${encodedName}`
+    );
+
+    console.log("3. 응답 도착:", response.status); // 여기까지 찍히는지 확인
+
+    if (!response.ok) {
+      throw new Error("키워드 데이터를 가져오는데 실패했습니다.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("[fetchKeywordsByCompany Error]", error);
     throw error;
   }
 };

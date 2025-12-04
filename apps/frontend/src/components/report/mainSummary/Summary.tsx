@@ -19,10 +19,7 @@ interface SummaryProps {
   loading: boolean;
 }
 
-export default function Summary({ summaryData, loading }: SummaryProps) {
-  if (loading) {
-    return <div className="p-4 text-center text-gray-500">불러오는 중...</div>;
-  }
+export default function Summary({ summaryData }: SummaryProps) {
 
   if (!summaryData || !summaryData.sentiment_ratio) {
     return (
@@ -44,11 +41,10 @@ export default function Summary({ summaryData, loading }: SummaryProps) {
         <div className="flex items-center gap-2 mb-4">
           <Sparkles className="w-5 h-5 text-[#FFA000]" fill="#FFA000" />
           <h3 className="text-lg font-bold text-gray-800">
-            {summaryData.company_name} 핵심 포인트
+            핵심 포인트
           </h3>
-          <span className="ml-5 text-xs text-gray-400">최근 1주일 기반</span>
+          <span className="ml-25 text-xs text-gray-400">최근 1주일 기반</span>
         </div>
-
 
         <div className="flex flex-col gap-3">
           <div className="bg-green-50 rounded-xl p-4 border border-green-100">
@@ -89,13 +85,12 @@ export default function Summary({ summaryData, loading }: SummaryProps) {
           <h3 className="text-lg font-bold text-gray-700">뉴스 긍부정 비율</h3>
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex justify-center w-full h-[300px]">
           <DonutChart data={donutData} />
         </div>
       </section>
 
       <KeywordList keywords={summaryData.keywords} />
-
     </div>
   );
 }

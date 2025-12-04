@@ -13,12 +13,13 @@ interface DonutChartProps {
 }
 
 const COLORS: Record<Sentiment, string> = {
-  긍정: "#34D399", // Soft Emerald (부드러운 초록)
-  부정: "#F87171", // Soft Red (부드러운 빨강)
-  중립: "#94A3B8", // Slate Gray (차분한 회색)
+  긍정: "#34D399", // Soft Emerald
+  부정: "#F87171", // Soft Red
+  중립: "#94A3B8", // Slate Gray
 };
 
 const DonutChart: React.FC<DonutChartProps> = ({ data }) => {
+
   const { chartData, topItem } = useMemo(() => {
     const total = data.reduce((sum, item) => sum + item.value, 0);
 
@@ -38,6 +39,12 @@ const DonutChart: React.FC<DonutChartProps> = ({ data }) => {
 
   if (!topItem) return <div className="text-gray-400 text-sm">데이터 없음</div>;
 
+  // 👇 [핵심 수정] 값이 0보다 큰 항목만 필터링하여 렌더링 데이터로 사용
+  const renderData = chartData.filter(item => item.value > 0);
+
+  // 필터링 후 데이터가 없으면 데이터 없음 표시 (총합이 0이 아닌데 전부 0일 때 대비)
+  if (renderData.length === 0) return <div className="text-gray-400 text-sm">데이터 없음</div>;
+
   return (
     <div className="flex flex-col items-center justify-center py-4">
       <div className="relative w-[220px] h-[220px]">
@@ -45,18 +52,21 @@ const DonutChart: React.FC<DonutChartProps> = ({ data }) => {
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
-              data={chartData}
+              data={renderData} // <<< 필터링된 데이터 사용
               cx="50%"
               cy="50%"
               innerRadius={65}
               outerRadius={90}
-              paddingAngle={3}
+              paddingAngle={3} // <<< paddingAngle은 그대로 유지
               dataKey="value"
               cornerRadius={6}
               stroke="none"
             >
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[entry.name]} />
+              {renderData.map((entry, index) => ( // <<< 필터링된 데이터 매핑
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[entry.name]}
+                />
               ))}
             </Pie>
           </PieChart>
@@ -77,6 +87,7 @@ const DonutChart: React.FC<DonutChartProps> = ({ data }) => {
       </div>
 
       <div className="flex justify-center gap-4 mt-2">
+        {/* 범례는 전체 데이터를 보여줍니다. */}
         {chartData.map((item) => (
           <div
             key={item.name}

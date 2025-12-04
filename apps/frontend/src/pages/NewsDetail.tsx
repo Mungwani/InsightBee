@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import ReportHeader from "../components/report/ReportHeader";
-import { Calendar, ExternalLink, Newspaper, Quote } from "lucide-react"; // Quote 추가
+import { Calendar, ExternalLink, Newspaper, Quote } from "lucide-react";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://insightbee-backend-950949202751.europe-west1.run.app';
 
