@@ -6,6 +6,7 @@ import Summary from "../components/report/mainSummary/Summary";
 import KeywordNews from "../components/report/keyword/KeywordNews";
 import ReportHeader from "../components/report/ReportHeader";
 import { Building2, BriefcaseBusiness, Newspaper } from "lucide-react";
+import News from "../components/report/newsList/News";
 
 export default function ReportPage() {
   const { companyName } = useParams() as { companyName: string };
@@ -46,8 +47,12 @@ export default function ReportPage() {
             </div>
 
             <div className="flex flex-col">
-              <div className="text-lg font-bold text-gray-500">{companyName}</div>
-              <p className="text-sm text-gray-500">기업 기본 설명(추후 API 연동 가능)</p>
+              <div className="text-lg font-bold text-gray-500">
+                {companyName}
+              </div>
+              <p className="text-sm text-gray-500">
+                기업 기본 설명(추후 API 연동 가능)
+              </p>
             </div>
           </div>
 
@@ -55,7 +60,6 @@ export default function ReportPage() {
 
           {/* 하단 정보 탭 */}
           <div className="flex justify-around w-full">
-
             <div className="flex gap-2 items-center justify-center">
               <BriefcaseBusiness className="w-4 h-4 text-gray-400" />
               <p className="text-[15px] text-gray-400">업종 정보</p>
@@ -73,16 +77,33 @@ export default function ReportPage() {
         <div className="flex justify-center gap-5 mt-8">
           <button
             onClick={() => setTab("summary")}
-            className={`w-[140px] h-[40px] rounded-full text-sm font-semibold transition-colors duration-200 ${tab === "summary" ? "bg-[#4F200D] text-white" : "bg-[#D7CCC8] text-[#4F200D]"
-              }`}
+            className={`w-[140px] h-[40px] rounded-full text-sm font-semibold transition-colors duration-200 ${
+              tab === "summary"
+                ? "bg-[#4F200D] text-white"
+                : "bg-[#D7CCC8] text-[#4F200D]"
+            }`}
           >
             핵심요약
           </button>
 
           <button
+            onClick={() => setTab("news")}
+            className={`w-[140px] h-[40px] rounded-full text-sm font-semibold transition-colors duration-200 ${
+              tab === "news"
+                ? "bg-[#4F200D] text-white"
+                : "bg-[#D7CCC8] text-[#4F200D]"
+            }`}
+          >
+            전체 뉴스
+          </button>
+
+          <button
             onClick={() => setTab("keyword")}
-            className={`w-[140px] h-[40px] rounded-full text-sm font-semibold transition-colors duration-200 ${tab === "keyword" ? "bg-[#4F200D] text-white" : "bg-[#D7CCC8] text-[#4F200D]"
-              }`}
+            className={`w-[140px] h-[40px] rounded-full text-sm font-semibold transition-colors duration-200 ${
+              tab === "keyword"
+                ? "bg-[#4F200D] text-white"
+                : "bg-[#D7CCC8] text-[#4F200D]"
+            }`}
           >
             키워드별 뉴스
           </button>
@@ -92,6 +113,8 @@ export default function ReportPage() {
           {tab === "summary" && (
             <Summary summaryData={summaryData} loading={false} />
           )}
+
+          {tab === "news" && <News newsData={newsData} />}
 
           {tab === "keyword" && (
             <KeywordNews newsData={newsData} companyName={companyName!} />
