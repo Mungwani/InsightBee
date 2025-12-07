@@ -22,7 +22,7 @@ def get_core_points(
     [트렌드 분석] 오늘 기준 최근 7일(1주) 내에 발행된 모든 주간 리포트를 조회하여 긍정/리스크 요인을 반환합니다.
     """
     table_id = f"{PROJECT_ID}.{DATASET_ID}.{REPORT_TABLE_NAME}"
-    # [수정됨] 최근 7일(1주) 전 날짜 계산
+    # 최근 7일(1주) 전 날짜 계산
     one_week_ago = datetime.now() - timedelta(days=7)
 
     sql = f"""
@@ -34,6 +34,7 @@ def get_core_points(
         WHERE company_name = @company_name
           AND report_end_date >= @start_date
         ORDER BY report_end_date DESC
+        LIMIT 1
     """
     
     job_config = bigquery.QueryJobConfig(
@@ -116,6 +117,7 @@ def get_core_keywords(
         WHERE company_name = @company_name
           AND report_end_date >= @start_date
         ORDER BY report_end_date DESC
+        LIMIT 1
     """
     
     job_config = bigquery.QueryJobConfig(
@@ -127,12 +129,9 @@ def get_core_keywords(
     
     rows = list(client.query(sql, job_config=job_config).result())
     
-
-    keyword_counter = Counter()
     
     keyword_items = []
     
-    #카운팅 로직 제거하고 단순 리스트업
     for report in rows:
         if report.keywords:
             k_list = []
