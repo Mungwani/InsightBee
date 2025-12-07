@@ -1,4 +1,3 @@
-// src/components/news/NewsList.tsx
 import React from "react";
 
 export interface NewsItem {
