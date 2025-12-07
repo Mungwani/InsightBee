@@ -3,7 +3,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchNewsByCompany, fetchSummaryByCompany, fetchKeywordsByCompany } from "../../services/report/getReport";
+import { fetchNewsByCompany, fetchSummaryByCompany, fetchKeywordsByCompany, fetchPointsByCompany } from "../../services/report/getReport"; 
 
 // 멘트 목록 정의
 const startMessage = "벌들이 뉴스를 분석하고 있습니다!";
@@ -118,17 +118,36 @@ export const useReportLoader = (company: string): LoaderState => {
 
         startAnimation();
 
+        // API 호출 시작 로그 추가 (useEffect 진입 시점에 가까움)
+        console.log(`[LOADER DEBUG] API 호출 시작: ${company}`);
+
         async function loadAll() {
             try {
                 const timerPromise = new Promise((resolve) => setTimeout(resolve, 3000));
+                
+                // 1. 모든 API 호출을 변수에 할당하여 시작
+                const summaryPromise = fetchSummaryByCompany(company);
+                const newsPromise = fetchNewsByCompany(company);
+                const keywordsPromise = fetchKeywordsByCompany(company);
+                const pointsPromise = fetchPointsByCompany(company); 
+                
+                console.log("[LOADER DEBUG] Points API 호출 준비 완료.");
+                
                 const apiPromise = Promise.all([
-                    fetchSummaryByCompany(company),
-                    fetchNewsByCompany(company),
-                    fetchKeywordsByCompany(company),
+                    summaryPromise,
+                    newsPromise,
+                    keywordsPromise,
+                    pointsPromise,
                 ]);
 
                 const [, apiResults] = await Promise.all([timerPromise, apiPromise]);
-                const [summary, news, keywords] = apiResults;
+                
+                // 2. 결과 할당에 'points' 추가
+                const [summary, news, keywords, points] = apiResults; 
+
+                console.log("[LOADER DEBUG] 모든 API 완료.");
+                console.log("-> Summary:", summary);
+                console.log("-> Points:", points); // 이 로그를 확인해야 합니다.
 
                 const isSummaryEmpty = !summary || (typeof summary === "object" && Object.keys(summary).length === 0);
                 const isNewsEmpty = !news || (Array.isArray(news) && news.length === 0);
@@ -153,7 +172,8 @@ export const useReportLoader = (company: string): LoaderState => {
 
                             navigate(`/report/${encodeURIComponent(company)}`, {
                                 replace: true,
-                                state: { summary, news, keywords },
+                                // 3. points 데이터를 state에 추가
+                                state: { summary, news, keywords, points }, 
                             });
                         }
                     }, FINAL_PROGRESS_TIME + 200);

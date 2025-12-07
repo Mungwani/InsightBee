@@ -8,30 +8,43 @@ import ReportHeader from "../components/report/ReportHeader";
 import { Building2, Newspaper, ArrowUp } from "lucide-react";
 import News from "../components/report/newsList/News";
 
+const processPoints = (points: Array<any>) => {
+  const positive_points: string[] = [];
+  const risk_factors: string[] = [];
+  let report_date = '';
+
+  if (points && points.length > 0) {
+    report_date = points[0].date;
+
+    points.forEach(point => {
+      const summaryText = point.summary || "";
+      if (summaryText.startsWith("[긍정]")) {
+        positive_points.push(summaryText.replace("[긍정]", "").trim());
+      } else if (summaryText.startsWith("[리스크]")) {
+        risk_factors.push(summaryText.replace("[리스크]", "").trim());
+      }
+    });
+  }
+  return { positive_points, risk_factors, report_date };
+};
+
+
 /**
  * 기업 분석 리포트 메인 페이지 컴포넌트
  * URL 파라미터와 라우터 state를 통해 데이터를 받아와 핵심 요약, 전체 뉴스, 키워드별 뉴스를 탭으로 보여줍니다.
  */
 export default function ReportPage() {
   // 1. 상태 및 데이터 초기화
-
-  // URL에서 기업 이름을 추출합니다. (예: /report/삼성전자)
   const { companyName } = useParams() as { companyName: string };
 
-  // 라우터 state에서 서버로부터 전달받은 핵심 데이터 (summary, news, keywords)를 추출합니다.
   const { state } = useLocation() as {
-    state?: { summary: any; news: any; keywords: any };
+    state?: { summary: any; news: any; keywords: any; points: any };
   };
 
-  // 현재 활성화된 탭 상태를 관리합니다: "summary", "news", "keyword" 중 하나
   const [tab, setTab] = useState("summary");
-
-  // 스크롤을 맨 위로 이동시키기 위해 메인 컨텐츠 영역의 DOM 요소에 접근하기 위한 ref
   const containerRef = useRef<HTMLDivElement>(null);
 
   // 2. 데이터 유효성 검사 (Empty State)
-
-  // state나 필수 데이터(summary, news)가 없는 경우 (예: 새로고침 또는 비정상적 접근 시) 오류 화면을 렌더링합니다.
   if (!state || !state.summary || !state.news) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-[#F9F5EE] text-gray-500">
@@ -44,25 +57,49 @@ export default function ReportPage() {
   }
 
   // 데이터 구조 분해 및 가공
-  const { summary, news, keywords } = state;
-  // Summary 컴포넌트에 전달하기 위해 키워드 데이터를 summary 객체에 통합합니다.
+  const { summary, news, keywords, points } = state;
+
+  // summary 객체에서 필요한 필드만 명시적으로 가져옵니다.
+  const { sentiment_ratio, total_article_count, company_name: summaryCompanyName } = summary || {};
+
+  // fetchPointsByCompany의 결과를 Summary 컴포넌트 형식에 맞게 가공합니다.
+  const processedPoints = processPoints(points?.points || []);
+
+  // Summary 컴포넌트에 전달할 최종 데이터를 직접 조립합니다.
   const summaryData = {
-    ...summary,
+    company_name: summaryCompanyName || companyName,
+
+    // fetchSummaryByCompany 결과 (도넛 차트 전용)
+    sentiment_ratio: sentiment_ratio,
+    total_article_count: total_article_count,
+
+    // fetchPointsByCompany 결과 (핵심 포인트 전용)
+    report_date: processedPoints.report_date,
+    positive_points: processedPoints.positive_points,
+    risk_factors: processedPoints.risk_factors,
+
+    // 키워드 데이터
     keywords: keywords?.keywords ?? []
   };
 
-  // 3. 이벤트 핸들러
+  // 로그 추가: 최종 summaryData 확인
+  console.log("--- FINAL summaryData 확인 ---");
+  console.log("1. sentiment_ratio (도넛 차트 출처):", summaryData.sentiment_ratio);
+  console.log("2. positive_points (핵심 포인트 출처):", summaryData.positive_points);
+  console.log("3. risk_factors (핵심 포인트 출처):", summaryData.risk_factors);
+  console.log("4. report_date (핵심 포인트 출처):", summaryData.report_date);
+  console.log("5. 전체 summaryData:", summaryData);
+  console.log("------------------------------");
 
-  // 메인 컨텐츠 영역을 맨 위로 스크롤하는 함수
+  // 3. 이벤트 핸들러
   const scrollToTop = () => {
-    // ref를 사용하여 DOM 요소에 접근 후, 부드러운 스크롤 효과를 적용
     containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // 4. 컴포넌트 렌더링
   return (
     <div className="min-h-screen bg-[#F9F5EE] flex flex-col overflow-x-hidden">
-      {/* 리포트 페이지 상단 헤더 */}
+      {/* ... (UI 렌더링 부분 유지) ... */}
       <div className="relative z-0">
         <ReportHeader title="리포트" />
       </div>
@@ -100,7 +137,6 @@ export default function ReportPage() {
 
         {/* 탭 네비게이션 버튼 */}
         <div className="flex justify-center gap-1.5 mt-8">
-          {/* 핵심요약 탭 */}
           <button
             onClick={() => setTab("summary")}
             className={`w-[120px] h-[40px] rounded-full text-sm font-semibold transition-colors duration-200 ${tab === "summary"
@@ -111,7 +147,6 @@ export default function ReportPage() {
             핵심요약
           </button>
 
-          {/* 전체 뉴스 탭 */}
           <button
             onClick={() => setTab("news")}
             className={`w-[120px] h-[40px] rounded-full text-sm font-semibold transition-colors duration-200 ${tab === "news"
@@ -122,7 +157,6 @@ export default function ReportPage() {
             전체 뉴스
           </button>
 
-          {/* 키워드별 뉴스 탭 */}
           <button
             onClick={() => setTab("keyword")}
             className={`w-[120px] h-[40px] rounded-full text-sm font-semibold transition-colors duration-200 ${tab === "keyword"
@@ -155,8 +189,8 @@ export default function ReportPage() {
       <button
         onClick={scrollToTop}
         className="fixed bottom-6 right-6 
-        bg-[#4F200D] text-white p-3 rounded-full shadow-xl z-50
-        flex items-center justify-center"
+                bg-[#4F200D] text-white p-3 rounded-full shadow-xl z-50
+                flex items-center justify-center"
       >
         <ArrowUp className="w-5 h-5" strokeWidth={3} />
       </button>

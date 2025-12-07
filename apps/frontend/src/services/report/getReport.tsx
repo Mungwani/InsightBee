@@ -64,3 +64,28 @@ export const fetchKeywordsByCompany = async (companyName: string) => {
     throw error;
   }
 };
+
+
+/**
+ * 매주 생성되는 주간 리포트(weekly_company_reports) 기반 핵심 정보(Points)를 제공합니다.
+ * @param companyName 분석할 기업명
+ * @returns { "company_name": string, "points": Array<Object> } 형태의 응답
+ */
+export const fetchPointsByCompany = async (companyName: string) => {
+  try {
+    const encodedName = encodeURIComponent(companyName);
+
+    const response = await fetch(
+      `${BASE_URL}/api/analytics/points?company_name=${encodedName}`
+    );
+
+    if (!response.ok) {
+      throw new Error("주간 리포트 핵심 정보를 가져오는데 실패했습니다.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("[fetchPointsByCompany Error]", error);
+    throw error;
+  }
+};
