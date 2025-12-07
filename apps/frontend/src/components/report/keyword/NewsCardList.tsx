@@ -2,17 +2,23 @@
 import { useState, useMemo, useEffect } from "react";
 import NewsCard from "./NewsCard";
 import { ChevronLeft, ChevronRight, SearchX } from "lucide-react";
+import NewsCardWithTopic from "../newsList/NewsCardWithTopic";
 
-export default function NewsCardList({ newsData, filter, sortOption }: any) {
+export default function NewsCardList({
+  newsData,
+  filter,
+  sortOption,
+  newsType,
+}: any) {
   const [page, setPage] = useState(1);
   const itemsPerPage = 3;
-  console.log("newdata", newsData);
   const filteredData = useMemo(() => {
     if (filter === "전체") return newsData;
     return newsData.filter(
       (item: any) => item.sentiment.slice(0, 2) === filter
     );
   }, [newsData, filter]);
+  console.log("데이터확인", newsData);
 
   const sortedData = useMemo(() => {
     return [...filteredData].sort((a: any, b: any) => {
@@ -53,17 +59,30 @@ export default function NewsCardList({ newsData, filter, sortOption }: any) {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-4 min-h-[300px]">
-        {paginatedData.map((item: any) => (
-          <NewsCard
-            key={item.article_id}
-            article_id={item.article_id}
-            title={item.title}
-            one_line_summary={item.one_line_summary}
-            source={item.source}
-            published_at={item.published_at}
-            sentiment={item.sentiment}
-          />
-        ))}
+        {paginatedData.map((item: any) =>
+          newsType === "all" ? (
+            <NewsCardWithTopic
+              key={item.article_id}
+              article_id={item.article_id}
+              title={item.title}
+              one_line_summary={item.one_line_summary}
+              source={item.source}
+              published_at={item.published_at}
+              sentiment={item.sentiment}
+              topic={item.keyword}
+            />
+          ) : (
+            <NewsCard
+              key={item.article_id}
+              article_id={item.article_id}
+              title={item.title}
+              one_line_summary={item.one_line_summary}
+              source={item.source}
+              published_at={item.published_at}
+              sentiment={item.sentiment}
+            />
+          )
+        )}
       </div>
 
       {totalPages > 1 && (
