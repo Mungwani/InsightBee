@@ -74,16 +74,33 @@ export default function ReportPage() {
         <div className="flex justify-center gap-5 mt-8">
           <button
             onClick={() => setTab("summary")}
-            className={`w-[140px] h-[40px] rounded-full text-sm font-semibold transition-colors duration-200 ${tab === "summary" ? "bg-[#4F200D] text-white" : "bg-[#D7CCC8] text-[#4F200D]"
-              }`}
+            className={`w-[140px] h-[40px] rounded-full text-sm font-semibold transition-colors duration-200 ${
+              tab === "summary"
+                ? "bg-[#4F200D] text-white"
+                : "bg-[#D7CCC8] text-[#4F200D]"
+            }`}
           >
             핵심요약
           </button>
 
           <button
+            onClick={() => setTab("news")}
+            className={`w-[140px] h-[40px] rounded-full text-sm font-semibold transition-colors duration-200 ${
+              tab === "news"
+                ? "bg-[#4F200D] text-white"
+                : "bg-[#D7CCC8] text-[#4F200D]"
+            }`}
+          >
+            전체 뉴스
+          </button>
+
+          <button
             onClick={() => setTab("keyword")}
-            className={`w-[140px] h-[40px] rounded-full text-sm font-semibold transition-colors duration-200 ${tab === "keyword" ? "bg-[#4F200D] text-white" : "bg-[#D7CCC8] text-[#4F200D]"
-              }`}
+            className={`w-[140px] h-[40px] rounded-full text-sm font-semibold transition-colors duration-200 ${
+              tab === "keyword"
+                ? "bg-[#4F200D] text-white"
+                : "bg-[#D7CCC8] text-[#4F200D]"
+            }`}
           >
             키워드별 뉴스
           </button>
@@ -93,6 +110,8 @@ export default function ReportPage() {
           {tab === "summary" && (
             <Summary summaryData={summaryData} loading={false} />
           )}
+
+          {tab === "news" && <News newsData={newsData} />}
 
           {tab === "keyword" && (
             <KeywordNews newsData={news} companyName={companyName!} />

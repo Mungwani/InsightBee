@@ -19,7 +19,9 @@ export default function TopicCardList({ newsData }: any) {
         return (
           <div
             key={group.keyword}
-            className={`flex flex-col transition-all duration-300 ${isOpen ? "gap-3" : "gap-0"}`}
+            className={`flex flex-col transition-all duration-300 ${
+              isOpen ? "gap-3" : "gap-0"
+            }`}
           >
             {/* 1. 토픽 카드 */}
             <div className="relative z-10">
@@ -35,7 +37,7 @@ export default function TopicCardList({ newsData }: any) {
             {isOpen && (
               <div className="relative m:pl-6 animate-fadeIn">
                 <div className="bg-gray-50 rounded-2xl p-2 sm:p-4 border border-gray-100 shadow-inner">
-                  <NewsModal newsData={group.news_items} />
+                  <NewsModal newsData={group.news_items} newsType="topic" />
                 </div>
               </div>
             )}
