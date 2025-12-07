@@ -1,3 +1,5 @@
+//components/newsList/NewsCardList.tsx (개선)
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useMemo, useEffect } from "react";
 import NewsCard from "./NewsCard";
@@ -12,18 +14,24 @@ export default function NewsCardList({
 }: any) {
   const [page, setPage] = useState(1);
   const itemsPerPage = 3;
+
+  // 1. 필터링 로직
   const filteredData = useMemo(() => {
+    // sentiment가 문자열이 아닌 경우를 대비한 방어 로직 추가
     if (filter === "전체") return newsData;
     return newsData.filter(
-      (item: any) => item.sentiment.slice(0, 2) === filter
+      (item: any) => item.sentiment && item.sentiment.slice(0, 2) === filter
     );
   }, [newsData, filter]);
-  console.log("데이터확인", newsData);
 
+  // 2. 정렬 로직
   const sortedData = useMemo(() => {
     return [...filteredData].sort((a: any, b: any) => {
       const dateA = new Date(a.published_at).getTime();
       const dateB = new Date(b.published_at).getTime();
+
+      // 유효하지 않은 날짜가 있다면 순서를 유지 (0 반환)
+      if (isNaN(dateA) || isNaN(dateB)) return 0;
 
       if (sortOption === "최신 순") return dateB - dateA;
       return dateA - dateB;
@@ -40,6 +48,7 @@ export default function NewsCardList({
     page * itemsPerPage
   );
 
+  // --- Empty State ---
   if (sortedData.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
@@ -56,6 +65,7 @@ export default function NewsCardList({
     );
   }
 
+  // --- Main Content & Pagination ---
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-4 min-h-[300px]">

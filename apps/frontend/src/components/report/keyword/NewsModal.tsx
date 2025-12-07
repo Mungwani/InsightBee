@@ -9,7 +9,7 @@ export default function NewsModal({ newsData, newsType }: any) {
 
   return (
     <div className="flex flex-col w-full h-full mt-5">
-      <div className="flex flex-row justify-between items-end mb-3 border-b border-gray-100">
+      <div className="flex flex-row justify-between items-end mb-3">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-gray-100 rounded-lg">
