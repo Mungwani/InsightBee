@@ -39,7 +39,7 @@ const DonutChart: React.FC<DonutChartProps> = ({ data }) => {
 
   if (!topItem) return <div className="text-gray-400 text-sm">데이터 없음</div>;
 
-  // 👇 [핵심 수정] 값이 0보다 큰 항목만 필터링하여 렌더링 데이터로 사용
+  // 값이 0보다 큰 항목만 필터링하여 렌더링 데이터로 사용
   const renderData = chartData.filter(item => item.value > 0);
 
   // 필터링 후 데이터가 없으면 데이터 없음 표시 (총합이 0이 아닌데 전부 0일 때 대비)

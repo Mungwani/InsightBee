@@ -15,7 +15,7 @@ interface NewsListProps {
     items: NewsItem[];
     selectedId?: string;
     onSelect?: (id: string) => void;
-    onRead?: (id: string) => void; // ← 추가
+    onRead?: (id: string) => void;
 }
 
 const NewsList: React.FC<NewsListProps> = ({ items, selectedId, onSelect, onRead }) => {

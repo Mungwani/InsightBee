@@ -15,19 +15,6 @@ export default function KeywordNews({ newsData }: any) {
 
   return (
     <div className="mt-4 px-4 pb-10 space-y-5">
-
-      {/* 워드클라우드 (보류 상태 - 주석 유지) */}
-      {/* <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Cloud className="w-5 h-5 text-gray-600" />
-          <h3 className="text-lg font-bold text-gray-700">핵심 키워드</h3>
-        </div>
-        <div className="bg-[#F9F5EE] rounded-xl min-h-[200px] flex items-center justify-center">
-           <WordCloud data={sentimentWords} onWordClick={handleWordClick} />
-        </div>
-      </section> 
-      */}
-
       {/* 토픽별 분석 */}
       <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
         {/* 헤더 영역 */}

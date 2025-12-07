@@ -24,7 +24,7 @@ export default function NewsCard({
     navigate(`/news/${article_id}`);
   };
 
-  // ✅ 날짜 포맷팅 함수 (YYYY.MM.DD)
+  // 날짜 포맷팅 함수 (YYYY.MM.DD)
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);

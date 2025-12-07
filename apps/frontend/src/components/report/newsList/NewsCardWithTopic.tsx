@@ -1,3 +1,5 @@
+//components/newsList/NewsCardWithTopic.tsx
+
 import { useNavigate } from "react-router-dom";
 import { CalendarDays, Newspaper, ChevronRight } from "lucide-react";
 
@@ -7,7 +9,7 @@ interface NewsCardProps {
   one_line_summary: string;
   source: string;
   published_at: string;
-  sentiment: string;
+  sentiment: string | undefined | null;
   topic: string;
 }
 
@@ -26,7 +28,7 @@ export default function NewsCardWithTopic({
     navigate(`/news/${article_id}`);
   };
 
-  // ✅ 날짜 포맷팅 함수 (YYYY.MM.DD)
+
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
@@ -34,15 +36,17 @@ export default function NewsCardWithTopic({
         2,
         "0"
       )}.${String(date.getDate()).padStart(2, "0")}`;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
-      return dateString; // 에러나면 원래 문자열 반환
+    } catch {
+      return dateString;
     }
   };
 
-  // 감정 뱃지 배경
-  const getSentimentColor = (sentiment: string) => {
-    const label = sentiment.slice(0, 2);
+  const getSentimentColor = (value: string | undefined | null) => {
+    if (!value || typeof value !== "string") {
+      return "bg-gray-50 text-gray-400";
+    }
+
+    const label = value.slice(0, 2);
 
     switch (label) {
       case "긍정":
@@ -56,49 +60,50 @@ export default function NewsCardWithTopic({
     }
   };
 
+
+  const sentimentLabel =
+    typeof sentiment === "string" ? sentiment.slice(0, 2) : "";
+
   return (
     <div
       onClick={handleClick}
       className="flex flex-col gap-3 bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-[#D7CCC8] transition-all duration-200 cursor-pointer group"
     >
-      {/* 상단: 타이틀 */}
-      <div className="whitespace-nowrap  py-1 rounded-full text-xs font-semibold text-[#4F200D] ">
+      <div className="whitespace-nowrap py-1 rounded-full text-xs font-semibold text-[#4F200D]">
         {topic}
       </div>
+
       <div className="flex justify-between items-start gap-2">
         <h4 className="text-[16px] font-bold text-gray-800 leading-snug group-hover:text-[#4F200D] transition-colors">
           {title}
         </h4>
 
         <div
-          className={`whitespace-nowrap px-2 py-1 rounded-full text-xs font-semibold
-    ${getSentimentColor(sentiment)}`}
+          className={`whitespace-nowrap px-2 py-1 rounded-full text-xs font-semibold ${getSentimentColor(
+            sentiment
+          )}`}
         >
-          {sentiment.slice(0, 2)}
+          {sentimentLabel}
         </div>
       </div>
 
-      {/* 중간: 요약 */}
       <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
         {one_line_summary}
       </p>
 
-      {/* 하단: 정보 및 날짜 */}
       <div className="flex justify-between items-end mt-1 pt-3 border-t border-gray-50">
         <div className="flex flex-col gap-1.5">
-          {/* 언론사 */}
           <div className="flex items-center gap-1.5 text-xs text-gray-500">
             <Newspaper className="w-3.5 h-3.5" />
             <span className="font-medium">{source}</span>
           </div>
-          {/* 날짜 */}
+
           <div className="flex items-center gap-1.5 text-xs text-gray-400">
             <CalendarDays className="w-3.5 h-3.5" />
             <span>{formatDate(published_at)}</span>
           </div>
         </div>
 
-        {/* '기사보기' 버튼 */}
         <button className="flex items-center gap-1 pl-3 pr-2 py-1.5 rounded-lg text-xs font-semibold text-gray-600 bg-gray-100 group-hover:bg-[#4F200D] group-hover:text-white transition-colors duration-200">
           기사보기
           <ChevronRight className="w-3 h-3" />

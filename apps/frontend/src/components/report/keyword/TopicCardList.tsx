@@ -19,9 +19,8 @@ export default function TopicCardList({ newsData }: any) {
         return (
           <div
             key={group.keyword}
-            className={`flex flex-col transition-all duration-300 ${
-              isOpen ? "gap-3" : "gap-0"
-            }`}
+            className={`flex flex-col transition-all duration-300 ${isOpen ? "gap-3" : "gap-0"
+              }`}
           >
             {/* 1. 토픽 카드 */}
             <div className="relative z-10">
